@@ -1,7 +1,7 @@
 # DESGRACIA
 
 Sintetizador VST3 (Windows 64-bit) de sonido digital sucio, inspirado en el under argentino / trap experimental.
-Motor de síntesis propio (sin samples), 55 presets de fábrica en 10 categorías, vocoder, efectos integrados,
+Motor de síntesis propio (sin samples), 67 presets de fábrica en 11 categorías, vocoder, efectos integrados,
 interfaz Frutiger Aero / Y2K (cielo, agua, burbujas, vidrio) y el personaje **Desgracia** animado: canta con el audio, rebota con cada nota, parpadea, se duerme si no tocás nada,
 tiembla con el DRIVE y se pixela con el CRUSH.
 
@@ -30,16 +30,17 @@ y valida el VST3 con [pluginval](https://github.com/Tracktion/pluginval) (strict
 - **RANDOM TOTAL:** random en todo sentido (ondas, filtro, FX, vocoder, modo de voz...).
 - **6 perillas fáciles** (macros): BRILLO, MUGRE, DESAFINE, MOVIMIENTO, ESPACIO, LARGO. Se suman encima del preset,
   en el centro no cambian nada.
-- **Vocoder** de 6 a 24 bandas: voz interna que "habla" sílabas en tempo (A-E-I-O-U, DES-GRA-CIA, U-A, WAH...) o
-  **tu propia voz por sidechain**.
-- Categorías nuevas **SYNTHS** y **VOCODER** y bajos synth nuevos.
+- **Vocoder** de 6 a 24 bandas: el synth habla solo, con sílabas en tempo (WA-WA-WA, YOI-YOI, DES-GRA-CIA,
+  RUIDOS RANDOM...) y un dado de voz. Funciona sobre cualquier sonido (nivel automático).
+- Categorías nuevas **SYNTHS**, **VOCODER** y **CRANK** (pulsantes y raros) y bajos synth nuevos.
 
 ## Presets de fábrica
 
 | Categoría | Presets |
 |---|---|
 | SYNTHS | Arcade Feliz · Feria Nocturna · Pixel Brass · Marimba Turbo · Burbuja · Cassette Lead · Teclado Escolar |
-| VOCODER | Robot Pobre · Desgracia Habla · Coro de Latas · Wah Robot · Vocoder Pobre II · Telefono · Tu Voz (Sidechain) |
+| VOCODER | Robot Pobre · Desgracia Habla · Coro de Latas · Wah Robot · Vocoder Pobre II · Telefono · Ruido de Robot · Wa Wa Wa · Yoi Yoi |
+| CRANK | Latido Crank · Sirena Pulsante · Gate Tartamudo · Neon S&H · Taladro · Trance Roto · Pulso de Juguete · Zumbido Ruso · Crank Total · Respira Pulsante |
 | ICONIC LEADS | Desgracia · Nariz de Lata · Juguete Roto · Alarma Hueca · Vocoder Pobre · Mosquito · Silbido Alien · Cuadrada Barata |
 | WEIRD PLUCKS | Gota de Vidrio · Pluck Pixel · Pinchazo · Bip Bip · Marimba de Plastico |
 | DIGITAL KEYS | Teclado de Feria · Organito Triste · Piano Desafinado · Rhodes de Lata |
@@ -63,7 +64,7 @@ Source/
   fx/FxChain.*              drive 2x oversampling, crush, EQ, chorus, delay, reverb, width
   presets/FactoryPresets.*  banco de fábrica (valores diseñados a mano)
   presets/PresetManager.*   cargar / navegar / guardar / random total / dado por categoría / init
-  fx/Vocoder.*              vocoder de canales (voz interna o sidechain)
+  fx/Vocoder.*              vocoder de canales con voz interna que habla
   ui/                       look & feel, editor, personaje animado
 tests/RenderTest.cpp        tests offline + render de cada preset a WAV
 assets/desgracia.png        el dibujo (convertido a máscara alfa)

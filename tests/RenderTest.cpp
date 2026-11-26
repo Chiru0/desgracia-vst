@@ -87,6 +87,16 @@ static void writeWav (const juce::File& f, const juce::AudioBuffer<float>& b, do
     }
 }
 
+// fake DAW transport (like FL Studio in play) to test tempo-locked behaviour
+struct FakePlayHead : juce::AudioPlayHead
+{
+    double bpm = 145.0, ppq = 0.0, sr = 48000.0; int lastBlock = 0;
+    juce::Optional<PositionInfo> getPosition() const override
+    {
+        PositionInfo i; i.setBpm (bpm); i.setPpqPosition (ppq); i.setIsPlaying (true); return i;
+    }
+};
+
 static void prep (DesgraciaProcessor& p, double sr, int block)
 {
     p.setPlayConfigDetails (0, 2, sr, block);
@@ -125,7 +135,7 @@ int main (int argc, char** argv)
         ed->setSize (1280, 820);
         int vocIdx = 0;
         for (int i = 0; i < p.presets.getEntries().size(); ++i) if (p.presets.getEntries()[i].category == "VOCODER") { vocIdx = i; break; }
-        const std::pair<int, int> shots[] = { { 0, 0 }, { 17, 1 }, { vocIdx, 2 }, { 27, 3 } };
+        const std::pair<int, int> shots[] = { { 0, 0 }, { 17, 1 }, { vocIdx, 2 }, { 57, 3 } };
         for (auto [idx, page] : shots)
         {
             p.presets.load (idx);
@@ -303,6 +313,46 @@ int main (int argc, char** argv)
             if (r.rms < 0.003) ++quiet;
         }
         std::cout << "  quiet random patches: " << quiet << "/50" << std::endl;
+    }
+
+    std::cout << "== vocoder: works on any patch (sine too) and while the DAW is playing" << std::endl;
+    {
+        for (int playing = 0; playing < 2; ++playing)
+            for (int wave : { 0, 2 })
+            {
+                DesgraciaProcessor a; prep (a, sr, 512);
+                FakePlayHead ph; ph.sr = sr;
+                a.presets.initPatch();
+                auto set = [&] (const juce::String& id, float v) { auto* q = a.apvts.getParameter (id); q->setValueNotifyingHost (q->convertTo0to1 (v)); };
+                set (pid::oscAWave, (float) wave); set (pid::ampS, 1.0f);
+                std::vector<Note> held { { 0.0, 3.0, 57, 0.9f }, { 0.0, 3.0, 60, 0.9f }, { 0.0, 3.0, 64, 0.9f } };
+                auto dry = render (a, sr, 512, held, 3.2, nullptr, 99.0);
+                for (int pat = 0; pat < 8; ++pat)
+                {
+                    set (pid::vocOn, 1.0f); set (pid::vocPattern, (float) pat);
+                    a.reset();
+                    juce::AudioBuffer<float> cap;
+                    if (playing) a.setPlayHead (&ph);
+                    // render block by block, advancing the fake transport
+                    Result r; const int N = (int) (3.2 * sr); juce::AudioBuffer<float> b (2, 512); double sum = 0;
+                    for (int pos = 0; pos < N; pos += 512)
+                    {
+                        juce::MidiBuffer m;
+                        if (pos == 0) for (auto& e : held) m.addEvent (juce::MidiMessage::noteOn (1, e.n, e.v), 0);
+                        if (pos <= (int) (3.0 * sr) && pos + 512 > (int) (3.0 * sr)) for (auto& e : held) m.addEvent (juce::MidiMessage::noteOff (1, e.n), 0);
+                        a.processBlock (b, m);
+                        ph.ppq += 512.0 / sr * ph.bpm / 60.0;
+                        for (int c = 0; c < 2; ++c) for (int i = 0; i < 512; ++i)
+                        { const float x = b.getSample (c, i); if (! std::isfinite (x)) r.finite = false; r.peak = std::max (r.peak, (double) std::abs (x)); sum += x * x; }
+                    }
+                    a.setPlayHead (nullptr);
+                    r.rms = std::sqrt (sum / (2.0 * N));
+                    const double diff = 20.0 * std::log10 (juce::jmax (1e-9, r.rms) / juce::jmax (1e-9, dry.rms));
+                    CHECK (r.finite && r.peak <= 1.0001, "vocoder broke");
+                    CHECK (diff > -9.0, "vocoder too quiet: wave " << wave << " pattern " << pat << (playing ? " (playing)" : "") << " " << diff << " dB vs dry");
+                    if (pat == 0) std::cout << "  wave " << wave << (playing ? " playing" : " stopped") << ": vocoded vs dry " << juce::String (diff, 1) << " dB" << std::endl;
+                }
+            }
     }
 
     std::cout << "== category dice x8 per category (must sound, stay finite, keep category)" << std::endl;

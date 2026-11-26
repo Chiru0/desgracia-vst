@@ -59,7 +59,6 @@ private:
 
     FxChain fx;
     juce::MidiBuffer chunkMidi;
-    juce::AudioBuffer<float> sideBuf;
     int lastNoteCount = 0;
     int maxChunk = 512;
     float levelSmooth = 0.0f;

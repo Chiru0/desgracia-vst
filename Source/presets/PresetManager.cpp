@@ -232,11 +232,38 @@ void PresetManager::rollDice (const juce::String& category)
     if (chance (0.2f) && ! bass) { setParam (pid::dlyOn, 1); setParam (pid::dlyMix, range (0.1f, 0.2f)); }
     if (category == "VOCODER")
     {
+        // mostly "wa-wa-wa" talking and random robot noises
         setParam (pid::vocOn, 1);
-        if (chance (0.5f)) setParam (pid::vocPattern, (float) r.nextInt (8));
-        if (chance (0.4f)) setParam (pid::vocRate, (float) juce::Array<int> { 2, 4, 6, 7 }[r.nextInt (4)]);
-        nudge (pid::vocShift, 3.0f, -12.0f, 12.0f);
-        setParam (pid::vocBands, (float) (10 + r.nextInt (15)));
+        setParam (pid::vocMix, 1);
+        if (chance (0.85f)) setParam (pid::vocPattern, (float) juce::Array<int> { 0, 0, 0, 6, 6, 4, 5, 7, 1 }[r.nextInt (9)]);
+        if (chance (0.6f)) setParam (pid::vocRate, (float) juce::Array<int> { 2, 4, 4, 5, 6, 7, 8 }[r.nextInt (7)]);
+        nudge (pid::vocShift, 4.0f, -12.0f, 12.0f);
+        setParam (pid::vocBands, (float) (8 + r.nextInt (17)));
+        setParam (pid::vocSpeed, range (0.4f, 0.9f));
+        setParam (pid::vocSib, range (0.0f, 0.6f));
+        setParam (pid::vocQ, range (0.2f, 0.9f));
+        if (chance (0.3f)) { setParam (pid::lfo (1, "dest"), 0); setParam (pid::lfo (1, "shape"), 4); setParam (pid::lfo (1, "sync"), 1);
+                             setParam (pid::lfo (1, "div"), 7); setParam (pid::lfo (1, "amt"), range (0.15f, 0.4f)); }
+    }
+    if (category == "CRANK")
+    {
+        // always pulsing: a tempo-synced gate on the volume, sometimes a second pulse on the filter
+        setParam (pid::lfo (0, "dest"), 4);
+        setParam (pid::lfo (0, "sync"), 1);
+        setParam (pid::lfo (0, "div"), (float) juce::Array<int> { 4, 5, 7, 7, 8, 9 }[r.nextInt (6)]);
+        setParam (pid::lfo (0, "shape"), (float) juce::Array<int> { 3, 3, 2, 4 }[r.nextInt (4)]);
+        setParam (pid::lfo (0, "amt"), range (0.6f, 1.0f));
+        setParam (pid::lfo (0, "delay"), 0.0f);
+        if (chance (0.6f))
+        {
+            setParam (pid::lfo (1, "dest"), (float) juce::Array<int> { 1, 1, 2, 3, 5, 0 }[r.nextInt (6)]);
+            setParam (pid::lfo (1, "sync"), 1);
+            setParam (pid::lfo (1, "div"), (float) juce::Array<int> { 2, 4, 6, 7, 8 }[r.nextInt (5)]);
+            setParam (pid::lfo (1, "shape"), (float) r.nextInt (5));
+            setParam (pid::lfo (1, "amt"), range (0.2f, 0.6f));
+        }
+        if (chance (0.5f)) { setParam (pid::drvOn, 1); setParam (pid::drvType, (float) r.nextInt (4)); setParam (pid::drvAmt, range (0.2f, 0.55f)); }
+        setParam (pid::ampS, juce::jmax (0.6f, getParam (pid::ampS)));
     }
 
     // category rules

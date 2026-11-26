@@ -40,7 +40,7 @@ namespace pid
     inline const juce::String width = "width", master = "master";
 
     // Vocoder
-    inline const juce::String vocOn = "voc_on", vocSrc = "voc_src", vocPattern = "voc_pattern", vocRate = "voc_rate",
+    inline const juce::String vocOn = "voc_on", vocPattern = "voc_pattern", vocRate = "voc_rate",
                               vocBands = "voc_bands", vocShift = "voc_shift", vocQ = "voc_q", vocSpeed = "voc_speed",
                               vocSib = "voc_sib", vocMix = "voc_mix";
 
@@ -61,8 +61,7 @@ namespace choices
     inline const juce::StringArray divisions  { "1/1", "1/2", "1/4", "1/4T", "1/8", "1/8T", "1/8D", "1/16", "1/16T", "1/32" };
     inline const juce::StringArray voiceModes { "POLY", "MONO", "LEGATO" };
     inline const juce::StringArray drvTypes   { "SOFT", "HARD", "FOLD", "TUBE" };
-    inline const juce::StringArray vocSources { "VOZ INTERNA", "SIDECHAIN" };
-    inline const juce::StringArray vocPatterns { "A-E-I-O-U", "DES-GRA-CIA", "U-A U-A", "O-I O-I", "HABLA RANDOM", "AAAA", "WAH LENTO", "IIII" };
+    inline const juce::StringArray vocPatterns { "WA-WA-WA", "DES-GRA-CIA", "A-E-I-O-U", "U-A U-A", "YOI-YOI", "HABLA RANDOM", "RUIDOS RANDOM", "WAH LENTO" };
 
     // length of each division in quarter notes (beats)
     inline double divisionBeats (int i)

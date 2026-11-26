@@ -1,6 +1,6 @@
 ; Inno Setup script: installs DESGRACIA.vst3 into the standard VST3 folder + presets
 #define AppName "Desgracia"
-#define AppVersion "2.0.0"
+#define AppVersion "2.1.0"
 
 [Setup]
 AppId={{6C1F2B7E-5D2A-4F0B-9E7C-DE5C0A1A0001}

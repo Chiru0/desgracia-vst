@@ -5,13 +5,13 @@
 
 struct VocoderParams
 {
-    bool on = false; int src = 0, pattern = 1, rateDiv = 4, bands = 16;
+    bool on = false; int pattern = 0, rateDiv = 4, bands = 16;
     float shift = 0, q = 0.5f, speed = 0.5f, sib = 0.3f, mix = 1.0f;
 };
 
-// Channel vocoder. Carrier = the synth. Modulator = either an internal
-// "talking" formant voice (syllable patterns synced to the host tempo)
-// or the plugin's sidechain input (your own voice / any audio).
+// Channel vocoder. Carrier = the synth. Modulator = an internal
+// "talking" formant voice: syllable patterns synced to the host tempo
+// (wa-wa-wa, des-gra-cia, random robot noises...).
 class Vocoder
 {
 public:
@@ -20,8 +20,7 @@ public:
     void prepare (double sampleRate);
     void reset();
     void retrigger() { stepPhase = 0.0; stepIndex = 0; newStep = true; }
-    void process (float* L, float* R, const float* sideL, const float* sideR, int n,
-                  const VocoderParams& p, double bpm, bool playing, double ppq);
+    void process (float* L, float* R, int n, const VocoderParams& p, double bpm, bool playing, double ppq);
 
     std::atomic<float> bandLevel[maxBands] {};
     std::atomic<int>   currentVowel { 0 };
@@ -45,6 +44,8 @@ private:
     double stepPhase = 0.0; long long stepIndex = 0; bool newStep = true;
     double stepLenSamples = 10000.0;
     int curCons = 0;
+    float buzzHz = 132.0f, buzzTarget = 132.0f, breath = 0.12f;
+    float envIn = 0.0f, envOut = 0.0f, autoGain = 1.0f;
     float sibLp = 0.0f;
     dsp::Rng rng;
 };

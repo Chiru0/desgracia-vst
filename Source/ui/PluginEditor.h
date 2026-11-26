@@ -177,6 +177,7 @@ private:
     void rebuildList();
     void browse (const juce::String& category, bool loadIfOutside);
     void showValue (const juce::String& name, const juce::String& value);
+    void rollVoice();
 
     // ListBoxModel
     int getNumRows() override { return listRows.size(); }
@@ -220,6 +221,7 @@ private:
     ui::FilterView filterView;
     ui::LevelMeter meter;
     ui::VocoderView vocView;
+    ui::DiceButton vocDice;
     DesgraciaCharacter character;
     juce::MidiKeyboardComponent keyboard;
     juce::TooltipWindow tooltips { nullptr, 650 };

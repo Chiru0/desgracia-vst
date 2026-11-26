@@ -2,8 +2,7 @@
 #include "ui/PluginEditor.h"
 
 DesgraciaProcessor::DesgraciaProcessor()
-    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                                       .withInput ("Sidechain (vocoder)", juce::AudioChannelSet::stereo(), false)),
+    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
       apvts (*this, nullptr, "DESGRACIA", createParameterLayout()),
       presets (apvts)
 {
@@ -30,9 +29,8 @@ float DesgraciaProcessor::get (const juce::String& id) const
 
 bool DesgraciaProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo()) return false;
-    const auto in = layouts.getMainInputChannelSet();
-    return in.isDisabled() || in == juce::AudioChannelSet::mono() || in == juce::AudioChannelSet::stereo();
+    return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo()
+        && layouts.getMainInputChannelSet().isDisabled();
 }
 
 void DesgraciaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -41,7 +39,6 @@ void DesgraciaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     engine.prepare (sampleRate);
     fx.prepare (sampleRate, maxChunk);
     chunkMidi.ensureSize (8192);
-    sideBuf.setSize (2, juce::jmax (samplesPerBlock, 4096));
     vocoder.prepare (sampleRate);
     keyboardState.reset();
 }
@@ -79,7 +76,7 @@ void DesgraciaProcessor::readParams (EngineParams& e, FxParams& f, VocoderParams
     f.eqOn = b (pid::eqOn); f.eqLow = get (pid::eqLow); f.eqMid = get (pid::eqMid); f.eqMidFreq = get (pid::eqMidFreq); f.eqHigh = get (pid::eqHigh);
     f.width = get (pid::width); f.masterDb = get (pid::master);
 
-    v.on = b (pid::vocOn); v.src = i (pid::vocSrc); v.pattern = i (pid::vocPattern); v.rateDiv = i (pid::vocRate);
+    v.on = b (pid::vocOn); v.pattern = i (pid::vocPattern); v.rateDiv = i (pid::vocRate);
     v.bands = i (pid::vocBands); v.shift = get (pid::vocShift); v.q = get (pid::vocQ); v.speed = get (pid::vocSpeed);
     v.sib = get (pid::vocSib); v.mix = get (pid::vocMix);
 
@@ -119,16 +116,6 @@ void DesgraciaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     juce::ScopedNoDenormals noDenormals;
     const int total = buffer.getNumSamples();
 
-    // grab the sidechain (vocoder modulator) before the buffer is reused for output
-    bool haveSide = false;
-    if (auto* inBus = getBus (true, 0); inBus != nullptr && inBus->isEnabled() && getTotalNumInputChannels() > 0)
-    {
-        auto in = getBusBuffer (buffer, true, 0);
-        if (sideBuf.getNumSamples() < total) sideBuf.setSize (2, total, false, false, true);
-        for (int c = 0; c < 2; ++c)
-            sideBuf.copyFrom (c, 0, in, juce::jmin (c, in.getNumChannels() - 1), 0, total);
-        haveSide = true;
-    }
     buffer.clear();
 
     keyboardState.processNextMidiBuffer (midi, 0, total, true);
@@ -159,10 +146,7 @@ void DesgraciaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
         const int before = engine.noteOnCounter.load();
         engine.render (chunk, chunkMidi);
         if (wasSilent && engine.noteOnCounter.load() != before && ! playing) vocoder.retrigger();
-        vocoder.process (chunk.getWritePointer (0), chunk.getWritePointer (1),
-                         haveSide ? sideBuf.getReadPointer (0, start) : nullptr,
-                         haveSide ? sideBuf.getReadPointer (1, start) : nullptr,
-                         n, vp, bpm, playing, ppq + (double) start / sr * bpm / 60.0);
+        vocoder.process (chunk.getWritePointer (0), chunk.getWritePointer (1), n, vp, bpm, playing, ppq + (double) start / sr * bpm / 60.0);
         fx.process (chunk, fp, bpm);
     }
 

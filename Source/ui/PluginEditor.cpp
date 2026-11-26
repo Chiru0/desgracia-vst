@@ -35,7 +35,8 @@ namespace
         { "WEIRD PLUCKS",  "plucks raros, pixelados, rotos" },
         { "DIGITAL KEYS",  "teclados baratos y marimbas" },
         { "METALLIC / FM", "campanas, latas y FM" },
-        { "VOCODER",       "robots que hablan" },
+        { "VOCODER",       "robots que hablan: wa-wa-wa" },
+        { "CRANK",         "pulsantes y raros, para crank" },
         { "DARK TEXTURES", "oscuro, sucio, roto" },
         { "AMBIENT",       "pads, nubes y agua" },
         { "BASS",          "bajos piolas, 808 y synth" },
@@ -93,8 +94,7 @@ namespace
             { "dly_ping", "Ping-pong: el eco salta de lado a lado." }, { "dly_mix", "Cuanto eco." },
             { "rev_on", "Prende la reverb." }, { "rev_size", "Tamano de la sala." }, { "rev_damp", "Que tan apagada suena la reverb." }, { "rev_mix", "Cuanta reverb." },
             { "voc_on", "Prende el vocoder: el synth habla." },
-            { "voc_src", "VOZ INTERNA = Desgracia habla sola. SIDECHAIN = usa tu voz u otro audio." },
-            { "voc_pattern", "Que silabas dice la voz interna." },
+            { "voc_pattern", "Que dice: WA-WA-WA, YOI-YOI, RUIDOS RANDOM..." },
             { "voc_rate", "Cada cuanto cambia de silaba (sincronizado al tempo)." },
             { "voc_bands", "Bandas: pocas = robot pobre, muchas = mas claro." },
             { "voc_shift", "Corre los formantes: voz de nene (+) o de monstruo (-)." },
@@ -509,7 +509,7 @@ void VocoderView::paint (juce::Graphics& g)
         g.fillRoundedRectangle (r, 14.0f);
         g.setColour (pal::navy);
         g.setFont (fonts::sans (20.0f, true));
-        g.drawText ("VOCODER APAGADO  -  prendelo arriba (VOCODER ON)", r, juce::Justification::centred, false);
+        g.drawText ("VOCODER APAGADO  -  prendelo arriba o tira el dado", r, juce::Justification::centred, false);
     }
 }
 
@@ -609,7 +609,7 @@ void DesgraciaEditor::Content::paint (juce::Graphics& g)
         b.drawText ("Desgracia", 60, 5, 230, 40, juce::Justification::centredLeft, false);
         b.setFont (fonts::sans (10.5f, true));
         b.setColour (juce::Colours::white.withAlpha (0.85f));
-        b.drawText ("sinte digital sucio  -  y2k edition v2", 62, 40, 220, 14, juce::Justification::centredLeft, false);
+        b.drawText ("sinte digital sucio  -  y2k edition v2.1", 62, 40, 220, 14, juce::Justification::centredLeft, false);
     }
     g.drawImageAt (bgCache, 0, 0);
     g.setColour (accent);
@@ -747,18 +747,18 @@ DesgraciaEditor::DesgraciaEditor (DesgraciaProcessor& p)
 
     // ---------------- VOCODER
     auto& voc = pages[2];
-    section (voc, "VOC", "VOCODER", "Prendelo, elegi que dice y toca: el synth habla. Con pocas bandas suena a robot pobre.").hideTitle = true;
+    section (voc, "VOC", "VOCODER", "Prendelo, elegi que dice y toca: el synth habla solo. Con pocas bandas suena a robot pobre. "
+                                    "El dado tira una voz nueva (wa-wa, yoi-yoi o ruidos de robot).").hideTitle = true;
     led (voc, pid::vocOn, "VOCODER ON");
-    choice (voc, pid::vocSrc, "QUIEN HABLA");
     choice (voc, pid::vocPattern, "QUE DICE");
     choice (voc, pid::vocRate, "CAMBIA CADA");
     knob (voc, pid::vocBands, "BANDAS"); knob (voc, pid::vocShift, "VOZ +/-"); knob (voc, pid::vocQ, "METAL");
     knob (voc, pid::vocSpeed, "REACCION"); knob (voc, pid::vocSib, "SSSS"); knob (voc, pid::vocMix, "MEZCLA");
     voc.addAndMakeVisible (vocView);
-    section (voc, "VOCHELP", "USAR TU PROPIA VOZ (SIDECHAIN)",
-             "1) Pone QUIEN HABLA en SIDECHAIN.   2) En FL Studio: en el canal del mixer de tu voz, manda una ruta (sidechain) al canal de Desgracia, "
-             "y en el wrapper del plugin (engranaje > Processing) asigna la entrada 'Sidechain (vocoder)'.   3) Toca acordes: tu voz habla a traves del synth. "
-             "Si no llega audio por el sidechain, el vocoder no suena.");
+    voc.addAndMakeVisible (vocDice);
+    vocDice.setTooltip ("Dado de voz: wa-wa, yoi-yoi, ruidos random... sobre el sonido que tengas.");
+    vocDice.pips = pal::forCategory ("VOCODER").darker (0.4f);
+    vocDice.onClick = [this] { vocDice.roll(); rollVoice(); };
 
     // ---------------- FX
     auto& fxp = pages[3];
@@ -835,7 +835,7 @@ DesgraciaEditor::DesgraciaEditor (DesgraciaProcessor& p)
     }
     tabs[0].setTooltip ("Elegi categoria, tira dados, toca.");
     tabs[1].setTooltip ("El motor completo: osciladores, filtro, envolventes, LFOs.");
-    tabs[2].setTooltip ("El synth habla: voz interna o tu propia voz por sidechain.");
+    tabs[2].setTooltip ("El synth habla solo: wa-wa-wa, yoi-yoi, ruidos de robot.");
     tabs[3].setTooltip ("Efectos: drive, crush, EQ, chorus, delay, reverb.");
 
     content.addAndMakeVisible (status);
@@ -882,7 +882,7 @@ void DesgraciaEditor::showPage (int index)
         tabs[i].setToggleState (i == currentPage, juce::dontSendNotification);
     }
     static const char* hints[] = { "elegi una categoria o tira un dado", "pasa el mouse por una perilla para ver que hace",
-                                   "el synth habla (voz interna o la tuya)", "efectos: todo pasa por aca en orden" };
+                                   "el synth habla solo: prendelo o tira el dado", "efectos: todo pasa por aca en orden" };
     status.setText (hints[currentPage], juce::dontSendNotification);
     statusHold = 0;
 }
@@ -905,9 +905,9 @@ void DesgraciaEditor::layoutContent()
 
     // ---- TOCAR
     {
-        const int cw = 278, ch = 114, gap = 8;
+        const int cw = 278, gap = 8, rows = (cards.size() + 1) / 2, ch = (604 + 6) / rows - 6;
         for (int i = 0; i < cards.size(); ++i)
-            cards[i]->setBounds ((i % 2) * (cw + gap), (i / 2) * (ch + 8) - 2, cw, ch);
+            cards[i]->setBounds ((i % 2) * (cw + gap), (i / 2) * (ch + 6) - 2, cw, ch);
         auto list = juce::Rectangle<int> (cw * 2 + gap + 10, 0, 904 - (cw * 2 + gap + 10), 604);
         sectionMap["LIST"]->setBounds (list);
         allBtn.setBounds (list.getRight() - 104, list.getY() + 7, 92, 20);
@@ -985,12 +985,11 @@ void DesgraciaEditor::layoutContent()
     {
         auto b = sec ("VOC", 0, 0, 904, 236);
         ledMap[pid::vocOn]->setBounds (b.getX() + 16, b.getY() + 8, 200, 26);
-        choiceMap[pid::vocSrc]->setBounds (b.getX() + 16, b.getY() + 44, 170, 38);
-        choiceMap[pid::vocPattern]->setBounds (b.getX() + 200, b.getY() + 44, 170, 38);
-        choiceMap[pid::vocRate]->setBounds (b.getX() + 384, b.getY() + 44, 110, 38);
+        choiceMap[pid::vocPattern]->setBounds (b.getX() + 16, b.getY() + 44, 190, 38);
+        choiceMap[pid::vocRate]->setBounds (b.getX() + 220, b.getY() + 44, 110, 38);
+        vocDice.setBounds (b.getRight() - 150, b.getY() + 40, 120, 120);
         row ({ pid::vocBands, pid::vocShift, pid::vocQ, pid::vocSpeed, pid::vocSib, pid::vocMix }, b.getX() + 16, b.getY() + 96, 84, 70, 80);
-        vocView.setBounds (0, 244, 904, 246);
-        sec ("VOCHELP", 0, 498, 904, 106);
+        vocView.setBounds (0, 244, 904, 360);
     }
 
     // ---- FX (2 x 3 big panels)
@@ -1028,6 +1027,24 @@ void DesgraciaEditor::layoutContent()
     }
 
     keyboard.setBounds (12, 722, 1256, 88);
+}
+
+void DesgraciaEditor::rollVoice()
+{
+    auto set = [this] (const juce::String& id, float v)
+    { if (auto* prm = proc.apvts.getParameter (id)) prm->setValueNotifyingHost (prm->convertTo0to1 (v)); };
+    static const int pats[] = { 0, 0, 0, 6, 6, 4, 5, 7, 1 };
+    static const int rates[] = { 2, 4, 4, 5, 6, 7, 8 };
+    set (pid::vocOn, 1.0f);
+    set (pid::vocMix, 1.0f);
+    set (pid::vocPattern, (float) pats[rng.nextInt (9)]);
+    set (pid::vocRate, (float) rates[rng.nextInt (7)]);
+    set (pid::vocBands, (float) (8 + rng.nextInt (17)));
+    set (pid::vocShift, (rng.nextFloat() - 0.5f) * 12.0f);
+    set (pid::vocQ, 0.2f + rng.nextFloat() * 0.7f);
+    set (pid::vocSpeed, 0.4f + rng.nextFloat() * 0.5f);
+    set (pid::vocSib, rng.nextFloat() * 0.6f);
+    character.say (choices::vocPatterns[(int) param (pid::vocPattern)].toLowerCase(), 1.6f);
 }
 
 void DesgraciaEditor::showValue (const juce::String& name, const juce::String& value)
@@ -1121,6 +1138,7 @@ void DesgraciaEditor::timerCallback()
     if (presetDirty.exchange (false)) refreshPresetDisplay();
 
     for (auto* c : cards) c->dice.tick (rng);
+    vocDice.tick (rng);
 
     if (currentPage == 1)
     {

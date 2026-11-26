@@ -8,6 +8,7 @@ juce::Colour pal::forCategory (const juce::String& c)
     if (c == "DIGITAL KEYS")  return juce::Colour (0xffffa31a);
     if (c == "METALLIC / FM") return juce::Colour (0xff7d97b8);
     if (c == "VOCODER")       return juce::Colour (0xff00bfae);
+    if (c == "CRANK")         return juce::Colour (0xffc23bff);
     if (c == "DARK TEXTURES") return juce::Colour (0xff6c5ce7);
     if (c == "AMBIENT")       return juce::Colour (0xff35c9e8);
     if (c == "BASS")          return juce::Colour (0xffff5a36);

@@ -57,11 +57,13 @@ Prender y apagar cualquier efecto hace un fundido corto (sin clicks) y el delay/
 ## Vocoder (página VOCODER)
 Vocoder de canales: el synth es la portadora y una "voz" la moduladora. Bandas log-espaciadas de 110 Hz a 7.5 kHz
 (BANDAS 6–24: pocas = robot pobre, muchas = más inteligible) con seguidores de envolvente (REACCION = velocidad).
-- **QUIEN HABLA = VOZ INTERNA:** una voz formántica (sierra + aire por 3 filtros de formante) que dice sílabas en
-  tempo según QUE DICE (A-E-I-O-U, DES-GRA-CIA, U-A U-A, O-I O-I, HABLA RANDOM, AAAA, WAH LENTO, IIII) cambiando
-  cada CAMBIA CADA (1/1 a 1/32). Con el DAW en play se engancha a la grilla; sin play arranca con la primera nota.
-- **QUIEN HABLA = SIDECHAIN:** usa la entrada lateral del plugin (tu voz, una batería, lo que sea). Si el host no
-  manda sidechain, vuelve a la voz interna para que nunca quede mudo.
+- La "voz" es interna: una voz formántica (sierra + aire por 3 filtros de formante) que dice sílabas en tempo según
+  QUE DICE: WA-WA-WA (U→A en cada paso), DES-GRA-CIA, A-E-I-O-U, U-A U-A, YOI-YOI (I→O), HABLA RANDOM,
+  RUIDOS RANDOM (vocales, alturas y soplidos al azar: ruidos de robot) y WAH LENTO, cambiando cada CAMBIA CADA
+  (1/1 a 1/32). Con el DAW en play se engancha a la grilla; sin play arranca con la primera nota.
+- Nivel automático: el vocoder sigue el volumen del synth seco y enriquece la portadora con armónicos, así suena
+  igual de fuerte sobre cualquier sonido (hasta sobre una senoidal).
+- El dado de voz (página VOCODER) tira patrón, velocidad, bandas y formantes al azar sobre el sonido actual.
 - VOZ +/- corre los formantes (nene / monstruo), METAL es la Q de las bandas, SSSS deja pasar las consonantes,
   MEZCLA entre synth normal y vocoder.
 
@@ -74,7 +76,8 @@ lento al cutoff), ESPACIO (prende y sube reverb y delay), LARGO (acorta/alarga d
 - **Dado de categoría:** elige un preset de fábrica al azar de esa categoría, mueve sus parámetros dentro de rangos
   de la categoría (puede cambiar la onda por otra que tenga sentido, prender/apagar crush o delay) y aplica reglas:
   BASS = mono/legato, ancho 0, octava baja y sin reverb; plucks y metálicos = sustain 0; ambient = ataque lento;
-  VOCODER = vocoder prendido con patrón, bandas y formantes al azar.
+  VOCODER = vocoder prendido, sobre todo WA-WA-WA y RUIDOS RANDOM, con bandas y formantes al azar;
+  CRANK = siempre un gate en tempo sobre el volumen (1/8 a 1/32) y a veces un segundo pulso en filtro, forma, FM o paneo.
 - **RANDOM TOTAL:** cualquier cosa en todo el motor, dentro de rangos que suenan (nunca mudo ni saturado a muerte).
 
 ## Recetas
