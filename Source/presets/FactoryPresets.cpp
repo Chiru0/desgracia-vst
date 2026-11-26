@@ -420,6 +420,214 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "drv_on", 1 }, { "drv_type", 1 }, { "drv_amt", 0.3f },
         { "dly_on", 1 }, { "dly_div", 4 }, { "dly_fb", 0.35f }, { "dly_mix", 0.15f },
         { "master", -5.3 } } },
+    //=========================================================== SYNTHS (v2)
+    { "Arcade Feliz", "SYNTHS", "insert coin", {
+        { "oscA_wave", 3 }, { "oscA_shape", 0.25f }, { "oscA_level", 0.8f },
+        { "oscB_wave", 4 }, { "oscB_oct", 1 }, { "oscB_shape", 0.6f }, { "oscB_level", 0.25f },
+        { "penv_amt", 7 }, { "penv_decay", 0.012f }, { "drift", 0.2f },
+        { "flt_type", 0 }, { "flt_cutoff", 6000 },
+        { "amp_a", 0.0007f }, { "amp_d", 0.3f }, { "amp_s", 0.5f }, { "amp_r", 0.08f },
+        { "crs_on", 1 }, { "crs_bits", 8 }, { "crs_rate", 16000 }, { "crs_mix", 0.5f },
+        { "dly_on", 1 }, { "dly_div", 4 }, { "dly_fb", 0.25f }, { "dly_mix", 0.14f },
+        { "master", -6 } } },
+
+    { "Feria Nocturna", "SYNTHS", "la feria ya cerro", {
+        { "oscA_wave", 4 }, { "oscA_shape", 0.5f }, { "oscA_level", 0.7f },
+        { "oscB_wave", 3 }, { "oscB_shape", 0.5f }, { "oscB_oct", 1 }, { "oscB_level", 0.3f },
+        { "sub_level", 0.2f }, { "drift", 0.4f },
+        { "flt_type", 0 }, { "flt_cutoff", 2200 }, { "flt_env", 0.12f },
+        { "amp_a", 0.001f }, { "amp_d", 1.5f }, { "amp_s", 0.3f }, { "amp_r", 0.3f },
+        { "lfo1_amt", 0.1f }, { "lfo1_rate", 4.5f }, { "lfo1_delay", 0.3f },
+        { "cho_on", 1 }, { "cho_mix", 0.45f },
+        { "crs_on", 1 }, { "crs_bits", 11 }, { "crs_rate", 20000 }, { "crs_mix", 0.6f },
+        { "rev_on", 1 }, { "rev_size", 0.4f }, { "rev_mix", 0.12f },
+        { "master", -2.3 } } },
+
+    { "Pixel Brass", "SYNTHS", "fanfarria de 8 bits", {
+        { "oscA_wave", 2 }, { "oscA_shape", 0.4f }, { "oscA_level", 0.75f },
+        { "oscB_wave", 3 }, { "oscB_shape", 0.5f }, { "oscB_level", 0.4f }, { "oscB_fine", 9 },
+        { "drift", 0.25f },
+        { "flt_type", 1 }, { "flt_cutoff", 800 }, { "flt_reso", 0.2f }, { "flt_env", 0.5f }, { "flt_key", 0.5f },
+        { "fenv_a", 0.03f }, { "fenv_d", 0.4f }, { "fenv_s", 0.35f },
+        { "amp_a", 0.01f }, { "amp_s", 0.85f }, { "amp_r", 0.12f },
+        { "crs_on", 1 }, { "crs_bits", 10 }, { "crs_rate", 18000 }, { "crs_mix", 0.4f },
+        { "master", -8 } } },
+
+    { "Marimba Turbo", "SYNTHS", "toc toc toc (rapido)", {
+        { "oscA_wave", 0 }, { "oscA_level", 0.85f },
+        { "oscB_wave", 0 }, { "oscB_oct", 2 }, { "oscB_level", 0.0f },
+        { "fm_amt", 0.04f }, { "fm_env", 0.7f }, { "fenv_d", 0.07f },
+        { "penv_amt", 5 }, { "penv_decay", 0.01f }, { "drift", 0.15f },
+        { "flt_type", 0 }, { "flt_cutoff", 9000 },
+        { "amp_a", 0.0005f }, { "amp_d", 0.35f }, { "amp_s", 0.0f }, { "amp_r", 0.2f },
+        { "drv_on", 1 }, { "drv_type", 3 }, { "drv_amt", 0.25f },
+        { "dly_on", 1 }, { "dly_div", 6 }, { "dly_fb", 0.3f }, { "dly_mix", 0.18f },
+        { "master", -4.6 } } },
+
+    { "Burbuja", "SYNTHS", "blup", {
+        { "oscA_wave", 0 }, { "oscA_level", 0.85f },
+        { "oscB_wave", 0 }, { "oscB_oct", 1 }, { "oscB_level", 0.0f },
+        { "fm_env", 0.3f }, { "fenv_d", 0.06f },
+        { "penv_amt", 24 }, { "penv_decay", 0.03f }, { "drift", 0.1f },
+        { "flt_type", 0 }, { "flt_cutoff", 12000 },
+        { "amp_a", 0.0005f }, { "amp_d", 0.25f }, { "amp_s", 0.0f }, { "amp_r", 0.15f },
+        { "rev_on", 1 }, { "rev_size", 0.5f }, { "rev_mix", 0.15f },
+        { "master", -4 } } },
+
+    { "Cassette Lead", "SYNTHS", "lado B", {
+        { "oscA_wave", 1 }, { "oscA_level", 0.75f },
+        { "oscB_wave", 2 }, { "oscB_level", 0.35f }, { "oscB_fine", -10 },
+        { "drift", 0.6f },
+        { "flt_type", 0 }, { "flt_cutoff", 2500 },
+        { "amp_a", 0.004f }, { "amp_s", 0.85f }, { "amp_r", 0.15f },
+        { "voice_mode", 2 }, { "glide", 0.05f },
+        { "lfo1_amt", 0.13f }, { "lfo1_rate", 5.0f }, { "lfo1_delay", 0.3f },
+        { "cho_on", 1 }, { "cho_mix", 0.4f },
+        { "crs_on", 1 }, { "crs_bits", 13 }, { "crs_rate", 12000 }, { "crs_mix", 0.5f },
+        { "master", -1 } } },
+
+    { "Teclado Escolar", "SYNTHS", "acto del 25 de mayo", {
+        { "oscA_wave", 3 }, { "oscA_level", 0.7f },
+        { "oscB_wave", 4 }, { "oscB_shape", 0.3f }, { "oscB_oct", 1 }, { "oscB_level", 0.35f },
+        { "drift", 0.2f },
+        { "flt_type", 0 }, { "flt_cutoff", 7000 },
+        { "amp_a", 0.001f }, { "amp_d", 0.6f }, { "amp_s", 0.4f }, { "amp_r", 0.1f },
+        { "crs_on", 1 }, { "crs_bits", 9 }, { "crs_rate", 11025 }, { "crs_mix", 0.8f },
+        { "master", -5.4 } } },
+
+    //=========================================================== BASS (synth, v2)
+    { "Bajo Pixel", "BASS", "bajo de cartucho", {
+        { "oscA_wave", 3 }, { "oscA_shape", 0.3f }, { "oscA_level", 0.75f }, { "oscA_oct", -1 },
+        { "sub_level", 0.45f }, { "sub_wave", 2 },
+        { "penv_amt", 12 }, { "penv_decay", 0.01f },
+        { "flt_type", 1 }, { "flt_cutoff", 900 }, { "flt_env", 0.4f }, { "flt_key", 0.3f }, { "fenv_d", 0.15f },
+        { "amp_a", 0.0007f }, { "amp_s", 0.85f }, { "amp_r", 0.06f },
+        { "voice_mode", 2 }, { "glide", 0.04f }, { "drift", 0.05f },
+        { "crs_on", 1 }, { "crs_bits", 8 }, { "crs_rate", 16000 }, { "crs_mix", 0.35f },
+        { "width", 0.0f }, { "master", -4.6 } } },
+
+    { "Bajo de Feria", "BASS", "bajo de juguete pero pesado", {
+        { "oscA_wave", 4 }, { "oscA_shape", 0.45f }, { "oscA_level", 0.75f }, { "oscA_oct", -1 },
+        { "sub_level", 0.5f },
+        { "flt_type", 0 }, { "flt_cutoff", 1200 }, { "flt_key", 0.2f },
+        { "amp_a", 0.001f }, { "amp_s", 0.9f }, { "amp_r", 0.08f },
+        { "voice_mode", 1 }, { "glide", 0.03f }, { "drift", 0.1f },
+        { "drv_on", 1 }, { "drv_type", 0 }, { "drv_amt", 0.3f },
+        { "width", 0.0f }, { "master", -6 } } },
+
+    { "Acid Barato", "BASS", "303 de la salada", {
+        { "oscA_wave", 2 }, { "oscA_level", 0.8f }, { "oscA_oct", -1 },
+        { "flt_type", 1 }, { "flt_cutoff", 330 }, { "flt_reso", 0.72f }, { "flt_env", 0.6f }, { "flt_key", 0.3f }, { "flt_vel", 0.5f },
+        { "fenv_d", 0.18f },
+        { "amp_a", 0.001f }, { "amp_s", 0.85f }, { "amp_r", 0.07f },
+        { "voice_mode", 2 }, { "glide", 0.06f }, { "drift", 0.05f },
+        { "drv_on", 1 }, { "drv_type", 1 }, { "drv_amt", 0.35f },
+        { "width", 0.0f }, { "master", -5.1 } } },
+
+    { "Bajo Goma", "BASS", "boing", {
+        { "oscA_wave", 0 }, { "oscA_level", 0.85f }, { "oscA_oct", -1 },
+        { "oscB_wave", 0 }, { "oscB_oct", -1 }, { "oscB_level", 0.0f },
+        { "fm_amt", 0.2f }, { "fm_env", 0.4f }, { "fenv_d", 0.2f },
+        { "flt_type", 0 }, { "flt_cutoff", 3000 }, { "flt_key", 0.0f },
+        { "amp_a", 0.001f }, { "amp_d", 0.8f }, { "amp_s", 0.6f }, { "amp_r", 0.08f },
+        { "voice_mode", 2 }, { "glide", 0.05f }, { "drift", 0.05f },
+        { "drv_on", 1 }, { "drv_type", 3 }, { "drv_amt", 0.35f },
+        { "width", 0.0f }, { "master", -4.3 } } },
+
+    { "Sub Synth 2000", "BASS", "bajo del milenio", {
+        { "oscA_wave", 2 }, { "oscA_shape", 0.3f }, { "oscA_level", 0.6f }, { "oscA_oct", -1 },
+        { "uni_voices", 2 }, { "uni_detune", 0.12f }, { "uni_spread", 0.2f },
+        { "sub_level", 0.6f },
+        { "flt_type", 1 }, { "flt_cutoff", 650 }, { "flt_reso", 0.15f }, { "flt_env", 0.3f }, { "fenv_d", 0.3f },
+        { "amp_a", 0.001f }, { "amp_s", 0.9f }, { "amp_r", 0.1f },
+        { "voice_mode", 2 }, { "glide", 0.04f }, { "drift", 0.08f },
+        { "drv_on", 1 }, { "drv_amt", 0.25f },
+        { "width", 0.2f }, { "master", -3.6 } } },
+
+    { "Wobble Juguete", "BASS", "wob wob (chiquito)", {
+        { "oscA_wave", 3 }, { "oscA_level", 0.75f }, { "oscA_oct", -1 },
+        { "sub_level", 0.4f },
+        { "flt_type", 1 }, { "flt_cutoff", 600 }, { "flt_reso", 0.45f },
+        { "lfo2_dest", 1 }, { "lfo2_amt", 0.5f }, { "lfo2_sync", 1 }, { "lfo2_div", 5 }, { "lfo2_shape", 1 },
+        { "amp_a", 0.001f }, { "amp_s", 0.9f }, { "amp_r", 0.08f },
+        { "voice_mode", 2 }, { "glide", 0.05f },
+        { "drv_on", 1 }, { "drv_amt", 0.3f },
+        { "width", 0.0f }, { "master", -7.3 } } },
+
+    //=========================================================== VOCODER (v2)
+    { "Robot Pobre", "VOCODER", "des-gra-cia", {
+        { "oscA_wave", 2 }, { "oscA_level", 0.8f },
+        { "uni_voices", 3 }, { "uni_detune", 0.15f }, { "uni_spread", 0.4f }, { "drift", 0.2f },
+        { "flt_type", 1 }, { "flt_cutoff", 7000 },
+        { "amp_a", 0.003f }, { "amp_s", 0.9f }, { "amp_r", 0.12f },
+        { "voice_mode", 2 }, { "glide", 0.05f },
+        { "voc_on", 1 }, { "voc_pattern", 1 }, { "voc_rate", 4 }, { "voc_bands", 16 },
+        { "drv_on", 1 }, { "drv_amt", 0.2f },
+        { "master", -4.9 } } },
+
+    { "Desgracia Habla", "VOCODER", "bla bla bla", {
+        { "oscA_wave", 3 }, { "oscA_shape", 0.3f }, { "oscA_level", 0.7f },
+        { "oscB_wave", 5 }, { "oscB_shape", 0.4f }, { "oscB_level", 0.4f },
+        { "drift", 0.35f },
+        { "flt_type", 1 }, { "flt_cutoff", 8000 },
+        { "amp_a", 0.003f }, { "amp_s", 0.9f }, { "amp_r", 0.1f },
+        { "voice_mode", 2 }, { "glide", 0.04f },
+        { "voc_on", 1 }, { "voc_pattern", 4 }, { "voc_rate", 7 }, { "voc_bands", 20 }, { "voc_shift", 3 }, { "voc_speed", 0.7f },
+        { "crs_on", 1 }, { "crs_bits", 10 }, { "crs_rate", 16000 }, { "crs_mix", 0.4f },
+        { "master", -5.5 } } },
+
+    { "Coro de Latas", "VOCODER", "aaaaaah (en lata)", {
+        { "oscA_wave", 2 }, { "oscA_level", 0.75f },
+        { "uni_voices", 5 }, { "uni_detune", 0.25f }, { "uni_spread", 0.8f }, { "drift", 0.35f },
+        { "flt_type", 0 }, { "flt_cutoff", 9000 },
+        { "amp_a", 0.3f }, { "amp_s", 0.9f }, { "amp_r", 1.0f },
+        { "voc_on", 1 }, { "voc_pattern", 5 }, { "voc_bands", 24 }, { "voc_q", 0.7f }, { "voc_sib", 0.1f },
+        { "cho_on", 1 }, { "cho_mix", 0.4f },
+        { "rev_on", 1 }, { "rev_size", 0.7f }, { "rev_mix", 0.25f },
+        { "master", 2 } } },
+
+    { "Wah Robot", "VOCODER", "waaaah", {
+        { "oscA_wave", 6 }, { "oscA_shape", 0.4f }, { "oscA_level", 0.8f },
+        { "oscB_wave", 2 }, { "oscB_oct", -1 }, { "oscB_level", 0.35f },
+        { "drift", 0.25f },
+        { "flt_type", 0 }, { "flt_cutoff", 9000 },
+        { "amp_a", 0.005f }, { "amp_s", 0.9f }, { "amp_r", 0.15f },
+        { "voice_mode", 2 }, { "glide", 0.06f },
+        { "voc_on", 1 }, { "voc_pattern", 6 }, { "voc_rate", 2 }, { "voc_bands", 12 }, { "voc_q", 0.6f },
+        { "drv_on", 1 }, { "drv_type", 1 }, { "drv_amt", 0.25f },
+        { "master", -3.4 } } },
+
+    { "Vocoder Pobre II", "VOCODER", "a-e-i-o-u... peor", {
+        { "oscA_wave", 6 }, { "oscA_shape", 0.35f }, { "oscA_level", 0.9f },
+        { "oscB_wave", 2 }, { "oscB_level", 0.35f }, { "oscB_fine", 12 },
+        { "drift", 0.35f },
+        { "flt_type", 5 }, { "flt_cutoff", 700 }, { "flt_reso", 0.45f }, { "flt_env", 0.3f }, { "flt_key", 0.0f },
+        { "fenv_a", 0.05f }, { "fenv_d", 0.6f }, { "fenv_s", 0.3f },
+        { "amp_a", 0.004f }, { "amp_s", 0.9f }, { "amp_r", 0.12f },
+        { "voice_mode", 2 }, { "glide", 0.07f },
+        { "lfo1_amt", 0.12f }, { "lfo1_delay", 0.4f },
+        { "voc_on", 1 }, { "voc_pattern", 2 }, { "voc_rate", 4 }, { "voc_bands", 14 }, { "voc_mix", 0.7f },
+        { "drv_on", 1 }, { "drv_amt", 0.35f },
+        { "master", -3.2 } } },
+
+    { "Telefono", "VOCODER", "hola? hola?", {
+        { "oscA_wave", 3 }, { "oscA_shape", 0.5f }, { "oscA_level", 0.8f },
+        { "flt_type", 0 }, { "flt_cutoff", 9000 }, { "drift", 0.2f },
+        { "amp_a", 0.002f }, { "amp_s", 0.9f }, { "amp_r", 0.08f },
+        { "voice_mode", 1 },
+        { "voc_on", 1 }, { "voc_pattern", 3 }, { "voc_rate", 7 }, { "voc_bands", 8 }, { "voc_q", 0.9f }, { "voc_sib", 0.5f },
+        { "eq_on", 1 }, { "eq_low", -10 }, { "eq_mid", 5 }, { "eq_midf", 1500 }, { "eq_high", -6 },
+        { "crs_on", 1 }, { "crs_bits", 11 }, { "crs_rate", 8000 }, { "crs_mix", 0.7f },
+        { "master", -2.8 } } },
+
+    { "Tu Voz (Sidechain)", "VOCODER", "mandame tu voz por sidechain", {
+        { "oscA_wave", 2 }, { "oscA_level", 0.75f },
+        { "oscB_wave", 3 }, { "oscB_level", 0.3f }, { "oscB_oct", -1 },
+        { "uni_voices", 3 }, { "uni_detune", 0.15f }, { "uni_spread", 0.5f }, { "drift", 0.2f },
+        { "flt_type", 0 }, { "flt_cutoff", 10000 },
+        { "amp_a", 0.003f }, { "amp_s", 0.95f }, { "amp_r", 0.15f },
+        { "voc_on", 1 }, { "voc_src", 1 }, { "voc_pattern", 0 }, { "voc_bands", 20 }, { "voc_speed", 0.7f }, { "voc_sib", 0.5f },
+        { "master", -6.2 } } },
     };
     return presets;
 }

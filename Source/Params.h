@@ -38,6 +38,15 @@ namespace pid
     inline const juce::String revOn = "rev_on", revSize = "rev_size", revDamp = "rev_damp", revMix = "rev_mix";
     inline const juce::String eqOn = "eq_on", eqLow = "eq_low", eqMid = "eq_mid", eqMidFreq = "eq_midf", eqHigh = "eq_high";
     inline const juce::String width = "width", master = "master";
+
+    // Vocoder
+    inline const juce::String vocOn = "voc_on", vocSrc = "voc_src", vocPattern = "voc_pattern", vocRate = "voc_rate",
+                              vocBands = "voc_bands", vocShift = "voc_shift", vocQ = "voc_q", vocSpeed = "voc_speed",
+                              vocSib = "voc_sib", vocMix = "voc_mix";
+
+    // Macros (offsets on top of the patch, neutral = 0)
+    inline const juce::String macBright = "mac_bright", macDirt = "mac_dirt", macDetune = "mac_detune",
+                              macMove = "mac_move", macSpace = "mac_space", macLength = "mac_length";
 }
 
 namespace choices
@@ -52,6 +61,8 @@ namespace choices
     inline const juce::StringArray divisions  { "1/1", "1/2", "1/4", "1/4T", "1/8", "1/8T", "1/8D", "1/16", "1/16T", "1/32" };
     inline const juce::StringArray voiceModes { "POLY", "MONO", "LEGATO" };
     inline const juce::StringArray drvTypes   { "SOFT", "HARD", "FOLD", "TUBE" };
+    inline const juce::StringArray vocSources { "VOZ INTERNA", "SIDECHAIN" };
+    inline const juce::StringArray vocPatterns { "A-E-I-O-U", "DES-GRA-CIA", "U-A U-A", "O-I O-I", "HABLA RANDOM", "AAAA", "WAH LENTO", "IIII" };
 
     // length of each division in quarter notes (beats)
     inline double divisionBeats (int i)

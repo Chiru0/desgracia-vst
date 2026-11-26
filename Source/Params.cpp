@@ -150,5 +150,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     addFloat (l, pid::width, "Stereo Width", { 0.0f, 2.0f }, 1.0f, pct);
     addFloat (l, pid::master, "Master", { -24.0f, 6.0f }, -3.0f, db);
 
+    add<APB> (l, juce::ParameterID { pid::vocOn, 1 }, "Vocoder On", false);
+    add<APC> (l, juce::ParameterID { pid::vocSrc, 1 }, "Vocoder Source", choices::vocSources, 0);
+    add<APC> (l, juce::ParameterID { pid::vocPattern, 1 }, "Vocoder Words", choices::vocPatterns, 1);
+    add<APC> (l, juce::ParameterID { pid::vocRate, 1 }, "Vocoder Rate", choices::divisions, 4);
+    add<API> (l, juce::ParameterID { pid::vocBands, 1 }, "Vocoder Bands", 6, 24, 16);
+    addFloat (l, pid::vocShift, "Vocoder Formant", { -12.0f, 12.0f }, 0.0f, semis);
+    addFloat (l, pid::vocQ, "Vocoder Q", { 0.0f, 1.0f }, 0.5f, pct);
+    addFloat (l, pid::vocSpeed, "Vocoder Speed", { 0.0f, 1.0f }, 0.5f, pct);
+    addFloat (l, pid::vocSib, "Vocoder Sibilance", { 0.0f, 1.0f }, 0.3f, pct);
+    addFloat (l, pid::vocMix, "Vocoder Mix", { 0.0f, 1.0f }, 1.0f, pct);
+
+    addFloat (l, pid::macBright, "Macro Brillo", { -1.0f, 1.0f }, 0.0f, bip);
+    addFloat (l, pid::macDirt, "Macro Mugre", { 0.0f, 1.0f }, 0.0f, pct);
+    addFloat (l, pid::macDetune, "Macro Desafine", { 0.0f, 1.0f }, 0.0f, pct);
+    addFloat (l, pid::macMove, "Macro Movimiento", { 0.0f, 1.0f }, 0.0f, pct);
+    addFloat (l, pid::macSpace, "Macro Espacio", { 0.0f, 1.0f }, 0.0f, pct);
+    addFloat (l, pid::macLength, "Macro Largo", { -1.0f, 1.0f }, 0.0f, bip);
+
     return l;
 }

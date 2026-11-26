@@ -49,13 +49,13 @@ juce::String PresetManager::getCurrentName() const
 
 juce::String PresetManager::getCurrentCategory() const
 {
-    if (customName.isNotEmpty()) return "-";
+    if (customName.isNotEmpty()) return customCategory.isNotEmpty() ? customCategory : juce::String ("-");
     return juce::isPositiveAndBelow (current, entries.size()) ? entries[current].category : juce::String();
 }
 
 juce::String PresetManager::getCurrentBlurb() const
 {
-    if (customName.isNotEmpty()) return "algo nuevo...";
+    if (customName.isNotEmpty()) return customCategory.isNotEmpty() ? juce::String ("dado nuevo de ") + customCategory.toLowerCase() : juce::String ("algo nuevo...");
     return juce::isPositiveAndBelow (current, entries.size()) ? entries[current].blurb : juce::String();
 }
 
@@ -64,6 +64,7 @@ void PresetManager::setCurrentNameOnly (const juce::String& name)
     for (int i = 0; i < entries.size(); ++i)
         if (entries[i].name == name) { current = i; customName = {}; return; }
     customName = name;
+    customCategory = {};
 }
 
 void PresetManager::setParam (const juce::String& id, float realValue)
@@ -121,6 +122,7 @@ void PresetManager::load (int index)
     }
     current = index;
     customName = {};
+    customCategory = {};
     apvts.state.setProperty ("presetName", e.name, nullptr);
     if (onChanged) onChanged();
 }
@@ -151,6 +153,7 @@ bool PresetManager::saveUser (const juce::String& rawName)
     for (int i = 0; i < entries.size(); ++i)
         if (entries[i].file == file) current = i;
     customName = {};
+    customCategory = {};
     apvts.state.setProperty ("presetName", name, nullptr);
     if (onChanged) onChanged();
     return true;
@@ -167,11 +170,93 @@ bool PresetManager::writePresetFile (const juce::File& file, const juce::String&
     return root.writeTo (file);
 }
 
+float PresetManager::getParam (const juce::String& id) const
+{
+    if (auto* p = apvts.getParameter (id)) return p->convertFrom0to1 (p->getValue());
+    return 0.0f;
+}
+
+// Category dice: start from a random factory preset of that category and mutate it,
+// then enforce the rules that make the category what it is.
+void PresetManager::rollDice (const juce::String& category)
+{
+    juce::Array<int> pool;
+    const auto& f = getFactoryPresets();
+    for (int i = 0; i < (int) f.size(); ++i)
+        if (category == f[(size_t) i].category) pool.add (i);
+    if (pool.isEmpty()) { randomize(); return; }
+
+    juce::Random r;
+    auto range = [&] (float a, float b) { return a + (b - a) * r.nextFloat(); };
+    auto chance = [&] (float p) { return r.nextFloat() < p; };
+
+    if (onBeforeLoad) onBeforeLoad();
+    resetAllToDefault();
+    const auto& base = f[(size_t) pool[r.nextInt (pool.size())]];
+    for (auto& kv : base.values) setParam (kv.first, kv.second);
+
+    auto nudge = [&] (const juce::String& id, float amount, float lo, float hi)
+    { setParam (id, juce::jlimit (lo, hi, getParam (id) + range (-amount, amount))); };
+    auto scale = [&] (const juce::String& id, float octaves, float lo, float hi)
+    { setParam (id, juce::jlimit (lo, hi, getParam (id) * std::exp2 (range (-octaves, octaves)))); };
+
+    nudge (pid::oscAShape, 0.3f, 0.0f, 1.0f);
+    nudge (pid::oscBShape, 0.3f, 0.0f, 1.0f);
+    nudge (pid::oscAFine, 6.0f, -100.0f, 100.0f);
+    nudge (pid::oscBFine, 12.0f, -100.0f, 100.0f);
+    if (getParam (pid::oscBLevel) > 0.01f) nudge (pid::oscBLevel, 0.15f, 0.0f, 0.7f);
+    if (getParam (pid::fmAmt) > 0.001f) nudge (pid::fmAmt, 0.08f, 0.0f, 0.6f);
+    if (getParam (pid::fmEnv) > 0.001f) nudge (pid::fmEnv, 0.15f, 0.0f, 0.9f);
+    nudge (pid::drift, 0.2f, 0.0f, 0.8f);
+    scale (pid::fltCutoff, 0.8f, 150.0f, 14000.0f);
+    nudge (pid::fltReso, 0.15f, 0.0f, 0.8f);
+    nudge (pid::fltEnv, 0.2f, -0.5f, 0.8f);
+    scale (pid::ampD, 0.6f, 0.05f, 4.0f);
+    scale (pid::fenvD, 0.6f, 0.02f, 2.0f);
+    scale (pid::lfo (0, "rate"), 0.4f, 0.1f, 12.0f);
+    scale (pid::lfo (1, "rate"), 0.6f, 0.05f, 12.0f);
+
+    const bool bass = category == "BASS", plucky = category == "WEIRD PLUCKS" || category == "METALLIC / FM";
+    const bool pads = category == "AMBIENT" || category == "DARK TEXTURES";
+
+    // discrete mutations, from sets that suit the category
+    if (chance (0.35f))
+    {
+        const int leadW[] = { 3, 4, 5, 6, 2 }, pluckW[] = { 0, 4, 7, 3 }, padW[] = { 1, 2, 5, 0 }, bassW[] = { 0, 2, 3, 4 };
+        const int* set = bass ? bassW : (plucky ? pluckW : (pads ? padW : leadW));
+        const int n = bass || plucky || pads ? 4 : 5;
+        setParam (chance (0.5f) ? pid::oscAWave : pid::oscBWave, (float) set[r.nextInt (n)]);
+    }
+    if (chance (0.25f) && ! bass) setParam (pid::oscBOct, (float) juce::jlimit (-1, 2, (int) getParam (pid::oscBOct) + (chance (0.5f) ? 1 : -1)));
+    if (chance (0.25f)) { setParam (pid::crsOn, 1); setParam (pid::crsBits, range (7.0f, 12.0f)); setParam (pid::crsMix, range (0.3f, 0.6f)); }
+    if (chance (0.2f) && ! bass) { setParam (pid::dlyOn, 1); setParam (pid::dlyMix, range (0.1f, 0.2f)); }
+    if (category == "VOCODER")
+    {
+        setParam (pid::vocOn, 1);
+        if (chance (0.5f)) setParam (pid::vocPattern, (float) r.nextInt (8));
+        if (chance (0.4f)) setParam (pid::vocRate, (float) juce::Array<int> { 2, 4, 6, 7 }[r.nextInt (4)]);
+        nudge (pid::vocShift, 3.0f, -12.0f, 12.0f);
+        setParam (pid::vocBands, (float) (10 + r.nextInt (15)));
+    }
+
+    // category rules
+    if (bass) { setParam (pid::width, 0.0f); if (getParam (pid::oscAOct) > -1.0f) setParam (pid::oscAOct, -1.0f);
+                setParam (pid::voiceMode, 2.0f); setParam (pid::revOn, 0.0f); setParam (pid::dlyOn, 0.0f); }
+    if (plucky) { setParam (pid::ampS, 0.0f); setParam (pid::ampD, juce::jlimit (0.08f, 1.2f, getParam (pid::ampD))); }
+    if (pads && getParam (pid::ampA) < 0.25f) setParam (pid::ampA, range (0.3f, 1.2f));
+
+    customName = juce::String (category).replace (" / ", "/").toLowerCase() + " dado #" + juce::String (r.nextInt (999));
+    customCategory = category;
+    apvts.state.setProperty ("presetName", customName, nullptr);
+    if (onChanged) onChanged();
+}
+
 void PresetManager::initPatch()
 {
     if (onBeforeLoad) onBeforeLoad();
     resetAllToDefault();
     customName = "Init";
+    customCategory = {};
     apvts.state.setProperty ("presetName", customName, nullptr);
     if (onChanged) onChanged();
 }
@@ -236,9 +321,22 @@ void PresetManager::randomize()
     if (chance (0.2f)) setParam (pid::choOn, 1);
     if (chance (0.35f)) { setParam (pid::dlyOn, 1); setParam (pid::dlyMix, range (0.1f, 0.2f)); }
     if (chance (0.25f)) { setParam (pid::revOn, 1); setParam (pid::revMix, range (0.1f, 0.2f)); }
+    if (chance (0.15f)) { setParam (pid::choOn, 1); setParam (pid::choMix, range (0.2f, 0.5f)); }
+    if (chance (0.2f))
+    {
+        setParam (pid::vocOn, 1);
+        setParam (pid::vocPattern, (float) r.nextInt (8));
+        setParam (pid::vocRate, pick ({ 2, 4, 6, 7 }));
+        setParam (pid::vocBands, (float) (8 + r.nextInt (17)));
+        setParam (pid::vocShift, range (-5.0f, 5.0f));
+        setParam (pid::oscAWave, pick ({ 2, 3, 6 }));
+    }
+    if (chance (0.2f)) setParam (pid::penvDest, 1.0f);
+    if (chance (0.2f)) setParam (pid::voiceMode, 1.0f);
     setParam (pid::master, -5.0f);
 
     customName = "Random #" + juce::String (r.nextInt (999));
+    customCategory = {};
     apvts.state.setProperty ("presetName", customName, nullptr);
     if (onChanged) onChanged();
 }

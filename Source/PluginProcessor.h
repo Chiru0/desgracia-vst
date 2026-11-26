@@ -4,6 +4,7 @@
 #include "Params.h"
 #include "engine/SynthEngine.h"
 #include "fx/FxChain.h"
+#include "fx/Vocoder.h"
 #include "presets/PresetManager.h"
 
 class DesgraciaProcessor : public juce::AudioProcessor
@@ -14,7 +15,7 @@ public:
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override {}
-    void reset() override { engine.reset(); fx.reset(); }
+    void reset() override { engine.reset(); fx.reset(); vocoder.reset(); }
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     using AudioProcessor::processBlock;
@@ -41,6 +42,7 @@ public:
     PresetManager presets;
     juce::MidiKeyboardState keyboardState;
     SynthEngine engine;
+    Vocoder vocoder;
 
     // ---- UI feedback, written by the audio thread, read by the editor
     static constexpr int scopeSize = 1024;
@@ -49,7 +51,7 @@ public:
     std::atomic<float> outputLevel { 0.0f };
 
 private:
-    void readParams (EngineParams& e, FxParams& f) const;
+    void readParams (EngineParams& e, FxParams& f, VocoderParams& v) const;
     float get (const juce::String& id) const;
 
     std::unordered_map<juce::String, std::atomic<float>*> cache;   // filled once in the constructor
@@ -57,6 +59,8 @@ private:
 
     FxChain fx;
     juce::MidiBuffer chunkMidi;
+    juce::AudioBuffer<float> sideBuf;
+    int lastNoteCount = 0;
     int maxChunk = 512;
     float levelSmooth = 0.0f;
 };

@@ -14,10 +14,11 @@ namespace
     const char* const clickPhrases[] = { "ay!", "no me toques", "que queres", "dejame", "eh!" };
 }
 
-DesgraciaCharacter::DesgraciaCharacter (DesgraciaProcessor& p) : proc (p), tint (pal::acid)
+DesgraciaCharacter::DesgraciaCharacter (DesgraciaProcessor& p) : proc (p), tint (pal::aqua)
 {
     face = juce::ImageCache::getFromMemory (BinaryData::desgracia_png, BinaryData::desgracia_pngSize);
-    setOpaque (true);
+    setOpaque (false);
+    for (int i = 0; i < numBubbles; ++i) { bx[i] = rng.nextFloat(); by[i] = rng.nextFloat(); bs[i] = 0.4f + rng.nextFloat(); }
     startTimerHz (60);
 }
 
@@ -79,6 +80,11 @@ void DesgraciaCharacter::timerCallback()
     sleep += ((idleTime > 9.0f ? 1.0f : 0.0f) - sleep) * 0.03f;
 
     if (bubbleTime > 0.0f) bubbleTime -= dt;
+    for (int i = 0; i < numBubbles; ++i)
+    {
+        by[i] -= dt * (0.04f + 0.05f * bs[i]) * (1.0f + level * 6.0f);
+        if (by[i] < -0.05f) { by[i] = 1.05f; bx[i] = rng.nextFloat(); bs[i] = 0.4f + rng.nextFloat(); }
+    }
 
     // ---- scope snapshot (stable: start on a rising zero crossing)
     const int w = proc.scopeWrite.load (std::memory_order_acquire);
@@ -148,20 +154,23 @@ void DesgraciaCharacter::drawFace (juce::Graphics& g, juce::Rectangle<float> are
         drawParts (pal::hot.withAlpha (0.55f), d);
         drawParts (pal::cyan.withAlpha (0.45f), -d);
     }
-    drawParts (tint, 0.0f);
+    // soft tint glow behind the navy lines
+    drawParts (tint.withAlpha (0.28f), 2.5f);
+    drawParts (tint.withAlpha (0.28f), -2.5f);
+    drawParts (pal::navy, 0.0f);
 
     // glitch bands
     if ((drive > 0.1f || crush > 0.1f) && level > 0.05f && rng.nextFloat() < 0.12f)
     {
         for (int k = 0; k < 1; ++k)
         {
-            const float by = area.getY() + rng.nextFloat() * area.getHeight();
+            const float bandY = area.getY() + rng.nextFloat() * area.getHeight();
             const float bh = 3.0f + rng.nextFloat() * 14.0f;
             juce::Graphics::ScopedSaveState ss (g);
-            g.reduceClipRegion (juce::Rectangle<float> (area.getX(), by, area.getWidth(), bh).toNearestInt());
-            g.setColour (pal::panel);
+            g.reduceClipRegion (juce::Rectangle<float> (area.getX(), bandY, area.getWidth(), bh).toNearestInt());
+            if (useSky) g.setGradientFill (skyGrad); else g.setColour (bgLight);
             g.fillRect (area);
-            drawParts (k == 0 ? tint : pal::hot, (rng.nextFloat() - 0.5f) * 40.0f);
+            drawParts (k == 0 ? pal::navy : pal::hot, (rng.nextFloat() - 0.5f) * 40.0f);
         }
     }
 
@@ -175,19 +184,19 @@ void DesgraciaCharacter::drawFace (juce::Graphics& g, juce::Rectangle<float> are
         {
             auto lid = eye.withHeight (eye.getHeight() * closed);
             juce::Path p; p.addRectangle (lid.withTrimmedTop (14.0f));
-            g.setColour (pal::panel);
+            if (useSky) g.setGradientFill (skyGrad); else g.setColour (bgLight);
             g.fillPath (p, headT);
             juce::Path l;
             l.startNewSubPath (eye.getX() + 6, lid.getBottom());
             l.quadraticTo (eye.getCentreX(), lid.getBottom() + 10.0f * closed, eye.getRight() - 6, lid.getBottom());
-            g.setColour (tint);
+            g.setColour (pal::navy);
             g.strokePath (l, juce::PathStrokeType (16.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded), headT);
         }
     }
 
     if (sleep > 0.3f)
     {
-        g.setColour (tint.withAlpha (sleep));
+        g.setColour (pal::navy.withAlpha (sleep));
         g.setFont (fonts::mono (14.0f + std::sin (time * 2.0f) * 2.0f, true));
         const float zy = area.getY() + area.getHeight() * 0.18f - std::fmod (time * 8.0f, 20.0f);
         g.drawText ("z Z z", juce::Rectangle<float> (area.getRight() - 90.0f, zy, 80.0f, 20.0f), juce::Justification::centred);
@@ -196,78 +205,100 @@ void DesgraciaCharacter::drawFace (juce::Graphics& g, juce::Rectangle<float> are
 
 void DesgraciaCharacter::drawScope (juce::Graphics& g, juce::Rectangle<float> r)
 {
-    g.setColour (pal::bg);
-    g.fillRect (r);
-    g.setColour (pal::line);
-    g.drawHorizontalLine ((int) r.getCentreY(), r.getX(), r.getRight());
+    juce::ColourGradient grad (juce::Colour (0xffeef8ff), 0, r.getY(), juce::Colours::white, 0, r.getBottom(), false);
+    g.setGradientFill (grad);
+    g.fillRoundedRectangle (r, 9.0f);
+    g.setColour (juce::Colour (0xff9cc9e6));
+    g.drawRoundedRectangle (r.reduced (0.5f), 9.0f, 1.0f);
     juce::Path p;
     for (int i = 0; i < 256; ++i)
     {
-        const float x = r.getX() + r.getWidth() * (float) i / 255.0f;
-        const float y = r.getCentreY() - juce::jlimit (-1.0f, 1.0f, scopeCopy[i] * 1.6f) * r.getHeight() * 0.45f;
+        const float x = r.getX() + 6.0f + (r.getWidth() - 12.0f) * (float) i / 255.0f;
+        const float y = r.getCentreY() - juce::jlimit (-1.0f, 1.0f, scopeCopy[i] * 1.6f) * r.getHeight() * 0.4f;
         if (i == 0) p.startNewSubPath (x, y); else p.lineTo (x, y);
     }
-    g.setColour (tint.withAlpha (0.9f));
-    g.strokePath (p, juce::PathStrokeType (1.5f));
-    g.setColour (pal::dim);
-    g.setFont (fonts::mono (9.0f));
-    g.drawText ("OUT", r.reduced (5, 3), juce::Justification::topLeft);
+    g.setColour (tint.withAlpha (0.25f));
+    g.strokePath (p, juce::PathStrokeType (4.5f));
+    g.setColour (tint.darker (0.2f));
+    g.strokePath (p, juce::PathStrokeType (1.6f));
 }
 
 void DesgraciaCharacter::paint (juce::Graphics& g)
 {
-    auto r = getLocalBounds().toFloat();
-    g.fillAll (pal::panel);
+    auto full = getLocalBounds().toFloat().reduced (2.0f);
+    aero::glassPanel (g, full, 18.0f, 0.95f);
 
-    // retro screen grid + scanlines
-    g.setColour (pal::line.withAlpha (0.35f));
-    for (float x = r.getX(); x < r.getRight(); x += 16.0f) g.drawVerticalLine ((int) x, r.getY(), r.getBottom());
-    for (float y = r.getY(); y < r.getBottom(); y += 16.0f) g.drawHorizontalLine ((int) y, r.getX(), r.getRight());
+    auto r = full.reduced (8.0f);
+    auto scopeArea = r.removeFromBottom (40.0f).reduced (2.0f, 2.0f);
+    r.removeFromBottom (6.0f);
 
-    auto scopeArea = r.removeFromBottom (46.0f).reduced (6.0f, 4.0f);
-    auto faceArea = r.reduced (10.0f, 6.0f);
-
-    if (crush > 0.05f)
+    // the "screen": light sky inside a rounded glass window
     {
-        const int n = juce::jlimit (40, 320, (int) (320.0f * (1.0f - crush * 0.8f)));
-        if (! pixelBuf.isValid() || pixelBuf.getWidth() != n)
-            pixelBuf = juce::Image (juce::Image::ARGB, n, n, true);
-        pixelBuf.clear (pixelBuf.getBounds());
-        {
-            juce::Graphics pg (pixelBuf);
-            drawFace (pg, pixelBuf.getBounds().toFloat());
-        }
-        const float side = juce::jmin (faceArea.getWidth(), faceArea.getHeight());
-        g.setImageResamplingQuality (juce::Graphics::lowResamplingQuality);
-        g.drawImage (pixelBuf, faceArea.withSizeKeepingCentre (side, side));
-        g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality);
-    }
-    else
-        drawFace (g, faceArea);
+        juce::Graphics::ScopedSaveState ss (g);
+        juce::Path clip; clip.addRoundedRectangle (r, 14.0f);
+        g.reduceClipRegion (clip);
+        skyGrad = juce::ColourGradient (tint.interpolatedWith (pal::sky, 0.6f).brighter (0.3f), 0, r.getY(), bgLight, 0, r.getCentreY(), false);
+        g.setGradientFill (skyGrad);
+        g.fillRect (r);
+        g.setColour (bgLight);
+        g.fillRect (r.withTrimmedTop (r.getHeight() * 0.5f));
+        // sun glow
+        juce::ColourGradient sun (juce::Colours::white.withAlpha (0.8f), r.getRight() - 40.0f, r.getY() + 30.0f,
+                                  juce::Colours::white.withAlpha (0.0f), r.getRight() - 40.0f, r.getY() + 150.0f, true);
+        g.setGradientFill (sun);
+        g.fillRect (r);
+        // rising bubbles
+        for (int i = 0; i < numBubbles; ++i)
+            aero::bubble (g, { r.getX() + bx[i] * r.getWidth(), r.getY() + by[i] * r.getHeight() }, 3.0f + bs[i] * 7.0f, 0.55f);
 
-    // scanline overlay
-    g.setColour (juce::Colours::black.withAlpha (0.18f));
-    for (float y = r.getY(); y < r.getBottom(); y += 3.0f) g.drawHorizontalLine ((int) y, r.getX(), r.getRight());
+        auto faceArea = r.reduced (10.0f, 6.0f);
+        if (crush > 0.05f)
+        {
+            const int n = juce::jlimit (40, 320, (int) (320.0f * (1.0f - crush * 0.8f)));
+            useSky = false;
+            if (! pixelBuf.isValid() || pixelBuf.getWidth() != n)
+                pixelBuf = juce::Image (juce::Image::ARGB, n, n, true);
+            pixelBuf.clear (pixelBuf.getBounds());
+            {
+                juce::Graphics pg (pixelBuf);
+                drawFace (pg, pixelBuf.getBounds().toFloat());
+            }
+            const float side = juce::jmin (faceArea.getWidth(), faceArea.getHeight());
+            g.setImageResamplingQuality (juce::Graphics::lowResamplingQuality);
+            g.drawImage (pixelBuf, faceArea.withSizeKeepingCentre (side, side));
+            g.setImageResamplingQuality (juce::Graphics::mediumResamplingQuality);
+        }
+        else
+        {
+            useSky = true;
+            drawFace (g, faceArea);
+        }
+
+        // glass reflection over the window
+        juce::ColourGradient gl (juce::Colours::white.withAlpha (0.45f), 0, r.getY(), juce::Colours::white.withAlpha (0.0f), 0, r.getY() + r.getHeight() * 0.3f, false);
+        g.setGradientFill (gl);
+        g.fillRoundedRectangle (r.reduced (4.0f).withHeight (r.getHeight() * 0.3f), 12.0f);
+    }
+    g.setColour (juce::Colours::white.withAlpha (0.9f));
+    g.drawRoundedRectangle (r, 14.0f, 1.5f);
 
     drawScope (g, scopeArea);
 
-    // speech bubble
+    // speech bubble (glass)
     if (bubbleTime > 0.0f && bubble.isNotEmpty())
     {
-        g.setFont (fonts::mono (13.0f, true));
-        const float tw = juce::jmin (r.getWidth() - 20.0f, (float) juce::GlyphArrangement::getStringWidthInt (g.getCurrentFont(), bubble) + 20.0f);
-        juce::Rectangle<float> b (r.getX() + 10.0f, r.getY() + 10.0f, tw, 26.0f);
+        g.setFont (fonts::sans (13.5f, true));
+        const float tw = juce::jmin (r.getWidth() - 20.0f, (float) juce::GlyphArrangement::getStringWidthInt (g.getCurrentFont(), bubble) + 24.0f);
+        juce::Rectangle<float> b (r.getX() + 10.0f, r.getY() + 10.0f, tw, 28.0f);
         const float a = juce::jlimit (0.0f, 1.0f, bubbleTime * 4.0f);
-        g.setColour (pal::bg.withAlpha (0.9f * a));
-        g.fillRect (b);
-        g.setColour (tint.withAlpha (a));
-        g.drawRect (b, 1.5f);
         juce::Path tail;
-        tail.addTriangle (b.getX() + 24, b.getBottom(), b.getX() + 38, b.getBottom(), b.getX() + 44, b.getBottom() + 10);
+        tail.addTriangle (b.getX() + 24, b.getBottom() - 1, b.getX() + 40, b.getBottom() - 1, b.getX() + 46, b.getBottom() + 10);
+        g.setColour (juce::Colours::white.withAlpha (0.95f * a));
         g.fillPath (tail);
-        g.drawText (bubble, b.reduced (10, 0), juce::Justification::centredLeft, true);
+        g.fillRoundedRectangle (b, 14.0f);
+        g.setColour (tint.withAlpha (a));
+        g.drawRoundedRectangle (b, 14.0f, 1.5f);
+        g.setColour (pal::navy.withAlpha (a));
+        g.drawText (bubble, b.reduced (12, 0), juce::Justification::centredLeft, true);
     }
-
-    g.setColour (pal::line.brighter (0.2f));
-    g.drawRect (getLocalBounds(), 1);
 }

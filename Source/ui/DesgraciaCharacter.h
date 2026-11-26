@@ -43,4 +43,9 @@ private:
     juce::String bubble;
     float bubbleTime = 0.0f;
     float scopeCopy[256] {};
+    static constexpr int numBubbles = 14;
+    float bx[numBubbles] {}, by[numBubbles] {}, bs[numBubbles] {};
+    const juce::Colour bgLight { 0xffe9f7ff };
+    juce::ColourGradient skyGrad;
+    bool useSky = false;
 };

@@ -26,7 +26,8 @@ public:
     bool saveUser (const juce::String& name);
     bool writePresetFile (const juce::File& file, const juce::String& name) const;   // current state -> .desgracia
     void initPatch();
-    void randomize();
+    void randomize();                              // RANDOM TOTAL: anything goes
+    void rollDice (const juce::String& category);  // random sound that belongs to a category
     void rescanUser();
 
     // used by host program changes / state restore
@@ -40,10 +41,11 @@ public:
 
 private:
     void setParam (const juce::String& id, float realValue);
+    float getParam (const juce::String& id) const;
     void resetAllToDefault();
 
     juce::AudioProcessorValueTreeState& apvts;
     juce::Array<Entry> entries;
     int current = 0;
-    juce::String customName;
+    juce::String customName, customCategory;
 };

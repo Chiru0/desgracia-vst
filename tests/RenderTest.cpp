@@ -122,16 +122,20 @@ int main (int argc, char** argv)
         DesgraciaProcessor p;
         prep (p, 48000, 512);
         std::unique_ptr<juce::AudioProcessorEditor> ed (p.createEditor());
-        ed->setSize (1280, 800);
-        for (int idx : { 0, 17, 27 })
+        ed->setSize (1280, 820);
+        int vocIdx = 0;
+        for (int i = 0; i < p.presets.getEntries().size(); ++i) if (p.presets.getEntries()[i].category == "VOCODER") { vocIdx = i; break; }
+        const std::pair<int, int> shots[] = { { 0, 0 }, { 17, 1 }, { vocIdx, 2 }, { 27, 3 } };
+        for (auto [idx, page] : shots)
         {
             p.presets.load (idx);
+            if (auto* de = dynamic_cast<DesgraciaEditor*> (ed.get())) de->showPage (page);
             juce::MidiBuffer m; juce::AudioBuffer<float> b (2, 512);
             m.addEvent (juce::MidiMessage::noteOn (1, 60, 0.9f), 0);
-            for (int i = 0; i < 6; ++i) { p.processBlock (b, m); m.clear(); }
+            for (int i = 0; i < 30; ++i) { p.processBlock (b, m); m.clear(); }
             for (int i = 0; i < 30; ++i) juce::MessageManager::getInstance()->runDispatchLoopUntil (20);
             auto img = ed->createComponentSnapshot (ed->getLocalBounds(), true, 1.0f);
-            juce::File f = out.getChildFile ("ui_" + juce::String (idx) + ".png");
+            juce::File f = out.getChildFile ("ui_page" + juce::String (page) + ".png");
             f.deleteFile();
             juce::PNGImageFormat png;
             if (auto s = f.createOutputStream()) png.writeImageToStream (img, *s);
@@ -299,6 +303,48 @@ int main (int argc, char** argv)
             if (r.rms < 0.003) ++quiet;
         }
         std::cout << "  quiet random patches: " << quiet << "/50" << std::endl;
+    }
+
+    std::cout << "== category dice x8 per category (must sound, stay finite, keep category)" << std::endl;
+    {
+        DesgraciaProcessor a; prep (a, sr, 512);
+        for (auto* cat : presetcat::all)
+        {
+            int quiet = 0; double minDb = 0, maxDb = -200;
+            for (int k = 0; k < 8; ++k)
+            {
+                a.presets.rollDice (cat);
+                a.reset();
+                CHECK (a.presets.getCurrentCategory() == cat, "dice " << cat << " changed category to " << a.presets.getCurrentCategory());
+                if (juce::String (cat) == "VOCODER") CHECK (a.apvts.getRawParameterValue (pid::vocOn)->load() > 0.5f, "vocoder dice without vocoder");
+                auto r = render (a, sr, 512, phrase(), 6.5, nullptr, 99.0);
+                CHECK (r.finite && r.peak <= 1.0001, "dice " << cat << " " << k << " broke");
+                const double db = 20.0 * std::log10 (juce::jmax (1e-9, r.rms));
+                minDb = juce::jmin (minDb, db); maxDb = juce::jmax (maxDb, db);
+                if (r.rms < 0.003) ++quiet;
+            }
+            CHECK (quiet == 0, "dice " << cat << ": " << quiet << " quiet results");
+            std::cout << "  " << cat << ": rms " << juce::String (minDb, 1) << " .. " << juce::String (maxDb, 1) << " dB" << std::endl;
+        }
+    }
+
+    std::cout << "== macros at extremes (finite, audible)" << std::endl;
+    {
+        DesgraciaProcessor a; prep (a, sr, 512);
+        for (int idx : { 0, 10, 28 })
+            for (float v : { -1.0f, 1.0f })
+            {
+                a.presets.load (idx);
+                for (auto id : { pid::macBright, pid::macDirt, pid::macDetune, pid::macMove, pid::macSpace, pid::macLength })
+                {
+                    auto* prm = a.apvts.getParameter (id);
+                    prm->setValueNotifyingHost (prm->convertTo0to1 (juce::jlimit (prm->getNormalisableRange().start, prm->getNormalisableRange().end, v)));
+                }
+                a.reset();
+                auto r = render (a, sr, 512, phrase(), 8.0, nullptr, 99.0);
+                CHECK (r.finite && r.peak <= 1.0001 && r.rms > 0.002, "macros " << v << " on preset " << idx << " broke");
+            }
+        std::cout << "  ok" << std::endl;
     }
 
     std::cout << "== CPU worst case: 16 voices x 7 unison x 2 osc, all FX" << std::endl;

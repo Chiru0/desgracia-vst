@@ -14,9 +14,9 @@ struct FactoryPreset
 
 namespace presetcat
 {
-    inline const char* const all[] = { "ICONIC LEADS", "WEIRD PLUCKS", "DIGITAL KEYS", "METALLIC / FM",
-                                       "DARK TEXTURES", "AMBIENT", "BASS", "EXPERIMENTAL" };
-    constexpr int count = 8;
+    inline const char* const all[] = { "ICONIC LEADS", "SYNTHS", "WEIRD PLUCKS", "DIGITAL KEYS", "METALLIC / FM",
+                                       "VOCODER", "DARK TEXTURES", "AMBIENT", "BASS", "EXPERIMENTAL" };
+    constexpr int count = 10;
 }
 
 const std::vector<FactoryPreset>& getFactoryPresets();

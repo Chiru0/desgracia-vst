@@ -2,7 +2,8 @@
 #include "ui/PluginEditor.h"
 
 DesgraciaProcessor::DesgraciaProcessor()
-    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+    : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+                                       .withInput ("Sidechain (vocoder)", juce::AudioChannelSet::stereo(), false)),
       apvts (*this, nullptr, "DESGRACIA", createParameterLayout()),
       presets (apvts)
 {
@@ -29,7 +30,9 @@ float DesgraciaProcessor::get (const juce::String& id) const
 
 bool DesgraciaProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo()) return false;
+    const auto in = layouts.getMainInputChannelSet();
+    return in.isDisabled() || in == juce::AudioChannelSet::mono() || in == juce::AudioChannelSet::stereo();
 }
 
 void DesgraciaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -38,10 +41,12 @@ void DesgraciaProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     engine.prepare (sampleRate);
     fx.prepare (sampleRate, maxChunk);
     chunkMidi.ensureSize (8192);
+    sideBuf.setSize (2, juce::jmax (samplesPerBlock, 4096));
+    vocoder.prepare (sampleRate);
     keyboardState.reset();
 }
 
-void DesgraciaProcessor::readParams (EngineParams& e, FxParams& f) const
+void DesgraciaProcessor::readParams (EngineParams& e, FxParams& f, VocoderParams& v) const
 {
     auto i = [this] (const juce::String& id) { return (int) std::lround (get (id)); };
     auto b = [this] (const juce::String& id) { return get (id) > 0.5f; };
@@ -73,18 +78,63 @@ void DesgraciaProcessor::readParams (EngineParams& e, FxParams& f) const
     f.revOn = b (pid::revOn); f.revSize = get (pid::revSize); f.revDamp = get (pid::revDamp); f.revMix = get (pid::revMix);
     f.eqOn = b (pid::eqOn); f.eqLow = get (pid::eqLow); f.eqMid = get (pid::eqMid); f.eqMidFreq = get (pid::eqMidFreq); f.eqHigh = get (pid::eqHigh);
     f.width = get (pid::width); f.masterDb = get (pid::master);
+
+    v.on = b (pid::vocOn); v.src = i (pid::vocSrc); v.pattern = i (pid::vocPattern); v.rateDiv = i (pid::vocRate);
+    v.bands = i (pid::vocBands); v.shift = get (pid::vocShift); v.q = get (pid::vocQ); v.speed = get (pid::vocSpeed);
+    v.sib = get (pid::vocSib); v.mix = get (pid::vocMix);
+
+    // ---- macros: offsets on top of whatever the patch is
+    const float bright = get (pid::macBright), dirt = get (pid::macDirt), detune = get (pid::macDetune);
+    const float move = get (pid::macMove), space = get (pid::macSpace), length = get (pid::macLength);
+    e.cutoff = juce::jlimit (20.0f, 20000.0f, e.cutoff * std::exp2 (bright * 3.0f));
+    if (bright > 0.0f && f.eqOn) f.eqHigh = juce::jmin (12.0f, f.eqHigh + bright * 4.0f);
+    if (dirt > 0.0f)
+    {
+        e.fltDrive = juce::jmin (1.0f, e.fltDrive + dirt * 0.5f);
+        if (f.drvOn) f.drvAmt = juce::jmin (1.0f, f.drvAmt + dirt * 0.45f);
+        else { f.drvOn = dirt > 0.02f; f.drvAmt = dirt * 0.55f; f.drvMix = 1.0f; f.drvType = 0; }
+        if (f.crsOn) f.crsBits = juce::jmax (3.0f, f.crsBits - dirt * 4.0f);
+    }
+    e.drift = juce::jmin (1.0f, e.drift + detune * 0.6f);
+    e.uniDetune = juce::jmin (1.0f, e.uniDetune + detune * 0.3f);
+    if (move > 0.0f)
+    {
+        bool any = false;
+        for (auto& l : e.lfo) if (l.amt > 0.0f) { l.amt = juce::jmin (1.0f, l.amt + move * 0.3f); any = true; }
+        if (! any) { e.lfo[1].dest = 1; e.lfo[1].amt = move * 0.45f; e.lfo[1].shape = 5; e.lfo[1].sync = false; e.lfo[1].rate = 0.4f + move * 2.0f; }
+    }
+    if (space > 0.0f)
+    {
+        if (! f.revOn) { f.revOn = space > 0.02f; f.revMix = 0.0f; f.revSize = 0.7f; }
+        f.revMix = juce::jmin (1.0f, f.revMix + space * 0.4f);
+        if (! f.dlyOn) { f.dlyOn = space > 0.02f; f.dlyMix = 0.0f; f.dlyFb = 0.35f; f.dlySync = true; f.dlyDiv = 6; }
+        f.dlyMix = juce::jmin (1.0f, f.dlyMix + space * 0.22f);
+    }
+    const float lm = std::exp2 (length * 2.0f);
+    e.ampD *= lm; e.ampR *= lm; e.fD *= lm; e.fR *= lm;
 }
 
 void DesgraciaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
     juce::ScopedNoDenormals noDenormals;
     const int total = buffer.getNumSamples();
+
+    // grab the sidechain (vocoder modulator) before the buffer is reused for output
+    bool haveSide = false;
+    if (auto* inBus = getBus (true, 0); inBus != nullptr && inBus->isEnabled() && getTotalNumInputChannels() > 0)
+    {
+        auto in = getBusBuffer (buffer, true, 0);
+        if (sideBuf.getNumSamples() < total) sideBuf.setSize (2, total, false, false, true);
+        for (int c = 0; c < 2; ++c)
+            sideBuf.copyFrom (c, 0, in, juce::jmin (c, in.getNumChannels() - 1), 0, total);
+        haveSide = true;
+    }
     buffer.clear();
 
     keyboardState.processNextMidiBuffer (midi, 0, total, true);
 
-    EngineParams ep; FxParams fp;
-    readParams (ep, fp);
+    EngineParams ep; FxParams fp; VocoderParams vp;
+    readParams (ep, fp, vp);
     engine.setParams (ep);
 
     double bpm = 120.0, ppq = 0.0; bool playing = false;
@@ -105,7 +155,14 @@ void DesgraciaProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 
         engine.setTransport (bpm, playing, ppq + (double) start / sr * bpm / 60.0);
         juce::AudioBuffer<float> chunk (buffer.getArrayOfWritePointers(), 2, start, n);
+        const bool wasSilent = engine.activeVoices.load() == 0;
+        const int before = engine.noteOnCounter.load();
         engine.render (chunk, chunkMidi);
+        if (wasSilent && engine.noteOnCounter.load() != before && ! playing) vocoder.retrigger();
+        vocoder.process (chunk.getWritePointer (0), chunk.getWritePointer (1),
+                         haveSide ? sideBuf.getReadPointer (0, start) : nullptr,
+                         haveSide ? sideBuf.getReadPointer (1, start) : nullptr,
+                         n, vp, bpm, playing, ppq + (double) start / sr * bpm / 60.0);
         fx.process (chunk, fp, bpm);
     }
 

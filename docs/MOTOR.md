@@ -54,6 +54,29 @@ DRIVE (Soft / Hard / Fold / Tube, 2x oversampling) → CRUSH (bits + sample rate
 paramétrico, high shelf 5.5 kHz) → CHORUS → DELAY (sync o ms, feedback con filtro, ping-pong) → REVERB.
 Prender y apagar cualquier efecto hace un fundido corto (sin clicks) y el delay/reverb dejan sonar la cola.
 
+## Vocoder (página VOCODER)
+Vocoder de canales: el synth es la portadora y una "voz" la moduladora. Bandas log-espaciadas de 110 Hz a 7.5 kHz
+(BANDAS 6–24: pocas = robot pobre, muchas = más inteligible) con seguidores de envolvente (REACCION = velocidad).
+- **QUIEN HABLA = VOZ INTERNA:** una voz formántica (sierra + aire por 3 filtros de formante) que dice sílabas en
+  tempo según QUE DICE (A-E-I-O-U, DES-GRA-CIA, U-A U-A, O-I O-I, HABLA RANDOM, AAAA, WAH LENTO, IIII) cambiando
+  cada CAMBIA CADA (1/1 a 1/32). Con el DAW en play se engancha a la grilla; sin play arranca con la primera nota.
+- **QUIEN HABLA = SIDECHAIN:** usa la entrada lateral del plugin (tu voz, una batería, lo que sea). Si el host no
+  manda sidechain, vuelve a la voz interna para que nunca quede mudo.
+- VOZ +/- corre los formantes (nene / monstruo), METAL es la Q de las bandas, SSSS deja pasar las consonantes,
+  MEZCLA entre synth normal y vocoder.
+
+## Perillas fáciles (macros)
+Se aplican encima del preset (en el centro = sin cambio): BRILLO (cutoff x2^3 para cada lado), MUGRE (drive del filtro,
+saturación y bits del crush), DESAFINE (drift + detune del unison), MOVIMIENTO (más LFO; si no hay, agrega un DRIFT
+lento al cutoff), ESPACIO (prende y sube reverb y delay), LARGO (acorta/alarga decays y releases).
+
+## Dados
+- **Dado de categoría:** elige un preset de fábrica al azar de esa categoría, mueve sus parámetros dentro de rangos
+  de la categoría (puede cambiar la onda por otra que tenga sentido, prender/apagar crush o delay) y aplica reglas:
+  BASS = mono/legato, ancho 0, octava baja y sin reverb; plucks y metálicos = sustain 0; ambient = ataque lento;
+  VOCODER = vocoder prendido con patrón, bandas y formantes al azar.
+- **RANDOM TOTAL:** cualquier cosa en todo el motor, dentro de rangos que suenan (nunca mudo ni saturado a muerte).
+
 ## Recetas
 - **Lead nasal tipo "lata":** PULSE con WIDTH 0.5–0.7, filtro BP ~1.2k RESO 0.5, KEY alto, LEGATO + GLIDE 40–70 ms,
   DRIFT 0.3, LFO1 PITCH 0.12 con DELAY 0.3 s, DRIVE HARD poquito.
@@ -65,5 +88,5 @@ Prender y apagar cualquier efecto hace un fundido corto (sin clicks) y el delay/
   que se escucha en parlantes chicos), LEGATO + GLIDE, WIDTH 0.
 - **Pad frío:** SAW OCT+ 0.5, UNISON 5, DETUNE 0.3, LP12 1.5k, ataque 1 s, EQ low −7 dB, reverb grande.
 
-Truco: el botón RAND genera parches random pero dentro de rangos musicales. Si te gusta uno, SAVE.
+Truco: los dados de cada categoría y RANDOM TOTAL generan sonidos nuevos dentro de rangos musicales. Si te gusta uno, GUARDAR.
 Doble click en una perilla la vuelve al valor por defecto.
