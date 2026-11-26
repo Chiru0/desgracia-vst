@@ -1,0 +1,5 @@
+build/
+JUCE/
+package/
+installer/Output/
+*.wav
