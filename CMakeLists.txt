@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(Desgracia VERSION 2.1.0)
+project(Desgracia VERSION 2.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -70,7 +70,7 @@ if(DESGRACIA_BUILD_TESTS)
     target_include_directories(DesgraciaTest PRIVATE Source)
     target_compile_definitions(DesgraciaTest PRIVATE ${DESGRACIA_DEFS}
         JucePlugin_Name="DESGRACIA" JucePlugin_IsSynth=1 JucePlugin_WantsMidiInput=1
-        JucePlugin_ProducesMidiOutput=0 JucePlugin_IsMidiEffect=0 JucePlugin_VersionString="2.1.0"
+        JucePlugin_ProducesMidiOutput=0 JucePlugin_IsMidiEffect=0 JucePlugin_VersionString="2.2.0"
         JUCE_STANDALONE_APPLICATION=1 JUCE_MODAL_LOOPS_PERMITTED=1)
     target_link_libraries(DesgraciaTest PRIVATE DesgraciaAssets juce::juce_audio_utils juce::juce_dsp
         juce::juce_recommended_config_flags)

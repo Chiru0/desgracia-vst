@@ -563,7 +563,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voice_mode", 2 }, { "glide", 0.05f },
         { "voc_on", 1 }, { "voc_pattern", 1 }, { "voc_rate", 4 }, { "voc_bands", 16 },
         { "drv_on", 1 }, { "drv_amt", 0.2f },
-        { "master", -6.1 } } },
+        { "master", -5.6 } } },
 
     { "Desgracia Habla", "VOCODER", "bla bla bla", {
         { "oscA_wave", 3 }, { "oscA_shape", 0.3f }, { "oscA_level", 0.7f },
@@ -574,7 +574,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voice_mode", 2 }, { "glide", 0.04f },
         { "voc_on", 1 }, { "voc_pattern", 5 }, { "voc_rate", 7 }, { "voc_bands", 20 }, { "voc_shift", 3 }, { "voc_speed", 0.7f },
         { "crs_on", 1 }, { "crs_bits", 10 }, { "crs_rate", 16000 }, { "crs_mix", 0.4f },
-        { "master", -8.2 } } },
+        { "master", -7.3 } } },
 
     { "Coro de Latas", "VOCODER", "aaaaaah (en lata)", {
         { "oscA_wave", 2 }, { "oscA_level", 0.75f },
@@ -584,7 +584,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voc_on", 1 }, { "voc_pattern", 0 }, { "voc_bands", 24 }, { "voc_q", 0.7f }, { "voc_sib", 0.1f },
         { "cho_on", 1 }, { "cho_mix", 0.4f },
         { "rev_on", 1 }, { "rev_size", 0.7f }, { "rev_mix", 0.25f },
-        { "master", -1 } } },
+        { "master", -2.5 } } },
 
     { "Wah Robot", "VOCODER", "waaaah", {
         { "oscA_wave", 6 }, { "oscA_shape", 0.4f }, { "oscA_level", 0.8f },
@@ -595,7 +595,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voice_mode", 2 }, { "glide", 0.06f },
         { "voc_on", 1 }, { "voc_pattern", 7 }, { "voc_rate", 2 }, { "voc_bands", 12 }, { "voc_q", 0.6f },
         { "drv_on", 1 }, { "drv_type", 1 }, { "drv_amt", 0.25f },
-        { "master", -5.5 } } },
+        { "master", -5.7 } } },
 
     { "Vocoder Pobre II", "VOCODER", "a-e-i-o-u... peor", {
         { "oscA_wave", 6 }, { "oscA_shape", 0.35f }, { "oscA_level", 0.9f },
@@ -608,7 +608,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "lfo1_amt", 0.12f }, { "lfo1_delay", 0.4f },
         { "voc_on", 1 }, { "voc_pattern", 3 }, { "voc_rate", 4 }, { "voc_bands", 14 }, { "voc_mix", 0.7f },
         { "drv_on", 1 }, { "drv_amt", 0.35f },
-        { "master", -4.4 } } },
+        { "master", -3.7 } } },
 
     { "Telefono", "VOCODER", "hola? hola?", {
         { "oscA_wave", 3 }, { "oscA_shape", 0.5f }, { "oscA_level", 0.8f },
@@ -618,7 +618,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voc_on", 1 }, { "voc_pattern", 4 }, { "voc_rate", 7 }, { "voc_bands", 8 }, { "voc_q", 0.9f }, { "voc_sib", 0.5f },
         { "eq_on", 1 }, { "eq_low", -10 }, { "eq_mid", 5 }, { "eq_midf", 1500 }, { "eq_high", -6 },
         { "crs_on", 1 }, { "crs_bits", 11 }, { "crs_rate", 8000 }, { "crs_mix", 0.7f },
-        { "master", -7 } } },
+        { "master", -7.4 } } },
 
     { "Ruido de Robot", "VOCODER", "bip bup brrr", {
         { "oscA_wave", 2 }, { "oscA_level", 0.75f },
@@ -627,7 +627,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "flt_type", 0 }, { "flt_cutoff", 10000 },
         { "amp_a", 0.003f }, { "amp_s", 0.95f }, { "amp_r", 0.15f },
         { "voc_on", 1 }, { "voc_pattern", 6 }, { "voc_rate", 7 }, { "voc_bands", 20 }, { "voc_speed", 0.7f }, { "voc_sib", 0.5f },
-        { "master", -9.1 } } },
+        { "master", -6.5 } } },
 
     { "Wa Wa Wa", "VOCODER", "wa wa wa wa", {
         { "oscA_wave", 2 }, { "oscA_level", 0.8f },
@@ -638,7 +638,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "voice_mode", 2 }, { "glide", 0.04f },
         { "voc_on", 1 }, { "voc_pattern", 0 }, { "voc_rate", 4 }, { "voc_bands", 14 }, { "voc_speed", 0.75f },
         { "drv_on", 1 }, { "drv_amt", 0.25f },
-        { "master", -7.4 } } },
+        { "master", -7.1 } } },
 
     { "Yoi Yoi", "VOCODER", "yoi yoi yoi", {
         { "oscA_wave", 3 }, { "oscA_shape", 0.35f }, { "oscA_level", 0.8f },
@@ -647,7 +647,7 @@ const std::vector<FactoryPreset>& getFactoryPresets()
         { "amp_a", 0.003f }, { "amp_s", 0.9f }, { "amp_r", 0.1f },
         { "voc_on", 1 }, { "voc_pattern", 4 }, { "voc_rate", 7 }, { "voc_bands", 10 }, { "voc_shift", 4 }, { "voc_q", 0.7f },
         { "crs_on", 1 }, { "crs_bits", 9 }, { "crs_mix", 0.35f },
-        { "master", -8.4 } } },
+        { "master", -8.7 } } },
 
     //=========================================================== CRANK (v2.1): pulsing, weird
     { "Latido Crank", "CRANK", "tuc tuc tuc tuc", {

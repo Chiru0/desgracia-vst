@@ -55,14 +55,14 @@ paramétrico, high shelf 5.5 kHz) → CHORUS → DELAY (sync o ms, feedback con 
 Prender y apagar cualquier efecto hace un fundido corto (sin clicks) y el delay/reverb dejan sonar la cola.
 
 ## Vocoder (página VOCODER)
-Vocoder de canales: el synth es la portadora y una "voz" la moduladora. Bandas log-espaciadas de 110 Hz a 7.5 kHz
-(BANDAS 6–24: pocas = robot pobre, muchas = más inteligible) con seguidores de envolvente (REACCION = velocidad).
-- La "voz" es interna: una voz formántica (sierra + aire por 3 filtros de formante) que dice sílabas en tempo según
-  QUE DICE: WA-WA-WA (U→A en cada paso), DES-GRA-CIA, A-E-I-O-U, U-A U-A, YOI-YOI (I→O), HABLA RANDOM,
+Funciona como un talkbox: el synth pasa por 3 filtros de formante que se mueven y "pronuncian" vocales, con un gate
+por sílaba. No hay ruido agregado, así que todo lo que suena es tu synth hablando. CLARIDAD (bandas) y METAL
+afinan los formantes, RAPIDEZ es qué tan rápido cambia de vocal y T-K agrega un golpecito de consonante.
+- Dice sílabas en tempo según QUE DICE: WA-WA-WA (U→A en cada paso), DES-GRA-CIA, A-E-I-O-U, U-A U-A, YOI-YOI (I→O), HABLA RANDOM,
   RUIDOS RANDOM (vocales, alturas y soplidos al azar: ruidos de robot) y WAH LENTO, cambiando cada CAMBIA CADA
   (1/1 a 1/32). Con el DAW en play se engancha a la grilla; sin play arranca con la primera nota.
-- Nivel automático: el vocoder sigue el volumen del synth seco y enriquece la portadora con armónicos, así suena
-  igual de fuerte sobre cualquier sonido (hasta sobre una senoidal).
+- Nivel automático: sigue el volumen del synth seco y le agrega armónicos suaves, así suena igual de fuerte
+  sobre cualquier sonido (hasta sobre una senoidal).
 - El dado de voz (página VOCODER) tira patrón, velocidad, bandas y formantes al azar sobre el sonido actual.
 - VOZ +/- corre los formantes (nene / monstruo), METAL es la Q de las bandas, SSSS deja pasar las consonantes,
   MEZCLA entre synth normal y vocoder.

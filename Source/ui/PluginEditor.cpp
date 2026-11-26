@@ -96,11 +96,11 @@ namespace
             { "voc_on", "Prende el vocoder: el synth habla." },
             { "voc_pattern", "Que dice: WA-WA-WA, YOI-YOI, RUIDOS RANDOM..." },
             { "voc_rate", "Cada cuanto cambia de silaba (sincronizado al tempo)." },
-            { "voc_bands", "Bandas: pocas = robot pobre, muchas = mas claro." },
+            { "voc_bands", "Claridad: poca = boca cerrada, mucha = vocales bien marcadas." },
             { "voc_shift", "Corre los formantes: voz de nene (+) o de monstruo (-)." },
-            { "voc_q", "Resonancia de las bandas: mas = mas metalico." },
-            { "voc_speed", "Que tan rapido reacciona a la voz." },
-            { "voc_sib", "Agrega las S y T (consonantes)." }, { "voc_mix", "Mezcla entre el synth normal y el vocoder." },
+            { "voc_q", "Resonancia de la boca: mas = mas metalico y chillon." },
+            { "voc_speed", "Que tan rapido cambia de vocal." },
+            { "voc_sib", "Golpecito de consonante (t, k) al empezar cada silaba." }, { "voc_mix", "Mezcla entre el synth normal y el vocoder." },
             { "mac_bright", "BRILLO: abre o cierra todo el sonido." },
             { "mac_dirt", "MUGRE: satura, rompe y crushea." },
             { "mac_detune", "DESAFINE: lo vuelve cassette viejo y ancho." },
@@ -609,7 +609,7 @@ void DesgraciaEditor::Content::paint (juce::Graphics& g)
         b.drawText ("Desgracia", 60, 5, 230, 40, juce::Justification::centredLeft, false);
         b.setFont (fonts::sans (10.5f, true));
         b.setColour (juce::Colours::white.withAlpha (0.85f));
-        b.drawText ("sinte digital sucio  -  y2k edition v2.1", 62, 40, 220, 14, juce::Justification::centredLeft, false);
+        b.drawText ("sinte digital sucio  -  y2k edition v2.2", 62, 40, 220, 14, juce::Justification::centredLeft, false);
     }
     g.drawImageAt (bgCache, 0, 0);
     g.setColour (accent);
@@ -747,13 +747,13 @@ DesgraciaEditor::DesgraciaEditor (DesgraciaProcessor& p)
 
     // ---------------- VOCODER
     auto& voc = pages[2];
-    section (voc, "VOC", "VOCODER", "Prendelo, elegi que dice y toca: el synth habla solo. Con pocas bandas suena a robot pobre. "
+    section (voc, "VOC", "VOCODER", "Prendelo, elegi que dice y toca: el synth habla solo, como un talkbox. "
                                     "El dado tira una voz nueva (wa-wa, yoi-yoi o ruidos de robot).").hideTitle = true;
     led (voc, pid::vocOn, "VOCODER ON");
     choice (voc, pid::vocPattern, "QUE DICE");
     choice (voc, pid::vocRate, "CAMBIA CADA");
-    knob (voc, pid::vocBands, "BANDAS"); knob (voc, pid::vocShift, "VOZ +/-"); knob (voc, pid::vocQ, "METAL");
-    knob (voc, pid::vocSpeed, "REACCION"); knob (voc, pid::vocSib, "SSSS"); knob (voc, pid::vocMix, "MEZCLA");
+    knob (voc, pid::vocBands, "CLARIDAD"); knob (voc, pid::vocShift, "VOZ +/-"); knob (voc, pid::vocQ, "METAL");
+    knob (voc, pid::vocSpeed, "RAPIDEZ"); knob (voc, pid::vocSib, "T-K"); knob (voc, pid::vocMix, "MEZCLA");
     voc.addAndMakeVisible (vocView);
     voc.addAndMakeVisible (vocDice);
     vocDice.setTooltip ("Dado de voz: wa-wa, yoi-yoi, ruidos random... sobre el sonido que tengas.");
